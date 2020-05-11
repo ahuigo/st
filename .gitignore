@@ -1,0 +1,9 @@
+ts.key
+cache
+log/
+*.log
+*.pstats
+.vscode
+__pycache__
+.DS_Store
+tmp/
