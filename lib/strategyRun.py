@@ -111,6 +111,3 @@ if __name__ == "__main__":
             os.remove('s.log')
         os.symlink(logFilePath, 's.log')
 
-    a = stockListMap['002007.SZ']                                                                                                                   
-    b = stockListMap['300482.SZ']                                                                                                                   
-    print(a['change']-b['change'])
