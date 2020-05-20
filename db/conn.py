@@ -15,11 +15,6 @@ pro.pro_bar = ts.pro_bar
 """
 Db
 """
-conn = psycopg2.connect(**dbconf)
-conn.set_session(readonly=False, autocommit=True)
-# cursor = conn.cursor()
-cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-#    row = cursor.fetchone()
 
 
 def insertBatch(cursor, table, rows, onConflictKeys=None):
@@ -53,7 +48,6 @@ def insertBatch(cursor, table, rows, onConflictKeys=None):
         raise e
 
 
-cursor.insertBatch = insertBatch.__get__(cursor)
 
 
 # onConflictKeys="key1,key2"
@@ -82,7 +76,18 @@ def insertUpdate(cursor, table, row, onConflictKeys=None):
         raise e
 
 
-cursor.insertUpdate = insertUpdate.__get__(cursor)
+
+# {database, user,  password, host, port}
+def getDbCursor(dbconf):
+    conn = psycopg2.connect(**dbconf)
+    conn.set_session(readonly=False, autocommit=True)
+    # cursor = conn.cursor()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cursor.insertBatch = insertBatch.__get__(cursor)
+    cursor.insertUpdate = insertUpdate.__get__(cursor)
+    return cursor
+
+cursor = getDbCursor(dbconf)
 
 if __name__ == "__main__":
     rows = [
