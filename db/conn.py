@@ -17,6 +17,7 @@ Db
 """
 
 
+# cursor.insertBatch('prices', rows, 'time,code')
 def insertBatch(cursor, table, rows, onConflictKeys=None):
     if len(rows) <= 0:
         return
