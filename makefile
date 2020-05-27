@@ -4,6 +4,8 @@ sql:
 
 benchMeanAsValue:
 	python -u bench/benchMeanAsValue.py
+benchMeanAsValue:
+	python bench/benchLevelAsValue.py -c 1:200 --hold 36:39 
 
 mean: #求均值
 	python lib/MeanLine.py $(code)

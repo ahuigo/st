@@ -52,12 +52,13 @@ def insertBatch(cursor, table, rows, onConflictKeys=None):
 
 
 # onConflictKeys="key1,key2"
-def insertUpdate(cursor, table, row, onConflictKeys=None):
+def insertUpdate(cursor, table, row, onConflictKeys=''):
     keys = tuple(row.keys())
     values = tuple(row.values())
 
     key_fields = ",".join(keys)
     value_format = ",".join(["%s"] * len(keys))
+    conflictKeys= onConflictKeys.split(",")
 
     sql = f"insert into {table}({key_fields}) values({value_format})"
     if onConflictKeys:
@@ -72,6 +73,19 @@ def insertUpdate(cursor, table, row, onConflictKeys=None):
     # print(sql, values)
     try:
         cursor.execute(sql, values)
+    except psycopg2.errors.UniqueViolation as e:
+        if not onConflictKeys:
+            raise e
+        print([cursor.query])
+        conflictKeys += uk
+
+        sql = f'update {table} set'
+        set_keys = ','.join([f'"{k}"=%s' for k in keys])
+        where_keys = ' and '.join([f'"{k}"=%s' for k in conflictKeys])
+        values += [row[k] for k in conflictKeys]
+        sql = f'{sql} {set_keys} where {where_keys}'
+        cursor.execute(sql, values)
+
     except Exception as e:
         print([cursor.query])
         raise e
