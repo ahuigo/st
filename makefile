@@ -2,7 +2,7 @@ code?=''
 sql:
 	psql -U role1 ahuigo
 
-benchMeanAsValue:
+benchMeanAsValue1:
 	python -u bench/benchMeanAsValue.py
 benchMeanAsValue:
 	python bench/benchLevelAsValue.py -c 1:200 --hold 36:39 
@@ -16,6 +16,10 @@ genlist:
 	python db/run.py -cmd genlist
 pullProfit: # cache 1day
 	python db/run.py -cmd pullProfit
+getGood: # 获取好股
+	@echo "get good！"
+	# get good
+	python db/run.py -raw -cmd getGood
 pullProfitGood: # cache 1day
 	python db/run.py -cmd pullProfitGood
 
@@ -30,10 +34,6 @@ cleanPrice:
 
 strategy:
 	python lib/strategyRun.py -cmd level 
-getGood: # 获取好股
-	@echo "get good！"
-	# get good
-	python db/run.py -raw -cmd getGood
 
 show:
 	python db/run.py -cmd show -code $(code)

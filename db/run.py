@@ -27,7 +27,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-code", default="")
-parser.add_argument("-n", default=0, help="股票数量")
+parser.add_argument("-n", default=0, help="stock数量")
 parser.add_argument("-cmd", default="")
 parser.add_argument("-opt", default="")
 parser.add_argument("-raw", action="store_true")
@@ -141,7 +141,7 @@ def showCode():
 
 def getGood(codes=[]):
     from db.conn import cursor
-    from lib.codelist import keji_codes
+    #from lib.codelist import keji_codes
     # profitDb.updateBuy()
     # metaDb.updateLevel()
 

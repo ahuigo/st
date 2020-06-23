@@ -113,7 +113,7 @@ def syncMetaCode(code):
     cursor.insertUpdate("metas", row, "code")
 
 
-def getMetaByCode(code, updateLevel=False,expire=86400*360):
+def getMetaByCode(code, updateLevel=False,expire=86400*30):
     cursor.execute("select*from metas where code=%s ", [code])
     row = cursor.fetchone()
     if updateLevel and ((datetime.now() - row["update_time"]).total_seconds() > expire or row['level_price']==0):
