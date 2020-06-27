@@ -2,9 +2,9 @@ code?=''
 sql:
 	psql -U role1 ahuigo
 
-benchMeanAsValue1:
-	python -u bench/benchMeanAsValue.py
 benchMeanAsValue:
+	python -u bench/benchMeanAsValue.py
+benchLevelAsValue:
 	python bench/benchLevelAsValue.py -c 1:200 --hold 36:39 
 
 mean: #求均值
