@@ -68,7 +68,7 @@ if __name__ == "__main__":
     print_unhold(stockListMap)
     price_key = 'yestclose' if Args.yestclose else 'price'
     balance = 1e4
-    max_hold_n = 33
+    max_hold_n = 35
     etf_total = 14140
     period = 30
     print(f"before:period={period} balance={balance} max_hold_n={max_hold_n},change={min_change}")

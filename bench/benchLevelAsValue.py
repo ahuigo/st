@@ -27,7 +27,7 @@ SELL_RATE = 0.998
 start_trade_date = date(2020, 3, 11)
 #start_trade_date = date(2020, 2, 21)
 start_trade_date = date(2020, 2, 14)
-end_trade_date = date(2020, 4, 14)
+end_trade_date = date(2020, 7, 4)
 # 交易天数
 trade_day_num = (date.today() - start_trade_date).days
 # 开始前参考时间

@@ -152,7 +152,7 @@ def getGood(codes=[]):
         )
 
     LATEST_END_DATE = (date.today() - timedelta(days=180)).strftime("%Y%m%d")
-    sql = f"select p.*,metas.name from (select distinct on (code) code,end_date,pe,peg,ny,dny,q_dtprofit_yoy,dtprofit_yoy,buy from profits where (netprofit_yoy>15 and q_dtprofit_yoy>-15 and end_date>='{LATEST_END_DATE}' and peg>1.29 and buy>=0  {where_codes}) order by code,end_date desc) p join metas on metas.code=p.code  order by p.peg desc"
+    sql = f"select p.*,metas.name from (select distinct on (code) code,end_date,pe,peg,ny,dny,q_dtprofit_yoy,dtprofit_yoy,buy from profits where (netprofit_yoy>15 and q_dtprofit_yoy>-15 and end_date>='{LATEST_END_DATE}' and peg>1.25 and buy>=0  {where_codes}) order by code,end_date desc) p join metas on metas.code=p.code  order by p.peg desc"
     print(sql)
     cursor.execute(sql)
     rows1 = [dict(row) for row in cursor]
@@ -181,8 +181,9 @@ def getGood(codes=[]):
         row["change"] = 100*float(row['level_price'])/float(row["price"])-100
 
     cols = ['end_date','name', 'code','industry','level','price','level_price','change','dny','dtprofit_yoy','q_dtprofit_yoy','ny','pe','peg']
+    #df = pd.DataFrame(rows)[cols].sort_values(by=['industry', 'level'], ascending=False)
     df = pd.DataFrame(rows)[cols].sort_values(by=['industry', 'change'], ascending=True)
-    df = df.groupby('industry').head(5)
+    df = df.groupby('industry').head(10)
     #df = pd.DataFrame(rows)[cols].sort_values(by=['industry', 'peg'], ascending=False)
     print("goodp\n", df)
 
