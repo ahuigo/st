@@ -110,14 +110,17 @@ def createStrategy(stockListMap, period=30, balance=10e4):
     return stockListMap
 
 
+
 def main(code='600036.SH', period=30, balance=10e4):
     import math
     # 1.get prices
-    prices = priceDb.getPricesByCode(code, 1, 197)
+    prices = priceDb.getPricesByCode(code, 1, 365)
     pre_priceInfo = None
     balance = 100*1e4
     percent = 0.75
     holdn = 0
+    init_total = 100*1e4
+    min_diff = 6000
     for priceInfo in prices:
         if pre_priceInfo is None:
             pre_priceInfo = priceInfo
@@ -126,17 +129,17 @@ def main(code='600036.SH', period=30, balance=10e4):
         price = priceInfo['close']
         holdv = holdn*price
         total = balance + holdv
-        holdv_should = total * percent
+        holdv_should = init_total #total * percent
         msg = ''
         # 亏 - buy
-        if holdv_should - holdv > 5000:
+        if holdv_should - holdv > min_diff:
             cost = holdv_should - holdv
             n = math.floor(cost*.998/price/100)*100
             balance -= n*price*1.002
             holdn += n
             msg = f'buy: {n}*{price}'
 
-        if  holdv -holdv_should  > 5000:
+        if  holdv -holdv_should  > min_diff:
             cost = holdv - holdv_should
             n = math.floor(cost*.998/price/100)*100
             balance += n*price*.9985
