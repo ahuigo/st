@@ -26,7 +26,7 @@ from db.conn import pro
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-code", default="")
+parser.add_argument("-code", default="", help="stock code")
 parser.add_argument("-n", default=0, help="stock数量")
 parser.add_argument("-cmd", default="")
 parser.add_argument("-opt", default="")

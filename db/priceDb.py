@@ -48,7 +48,7 @@ def getLatestPrice(code):
 def getPricesByCode(code, page=1, size=1000):
     offset = (page - 1) * size
     cursor.execute(
-        "select code,trade_date,close from prices where code=%s order by trade_date desc limit %s offset %s",
+        "select code,trade_date,high,low,close from prices where code=%s order by trade_date desc limit %s offset %s",
         [code, size, offset],
     )
     rows = cursor.fetchall()
