@@ -3,6 +3,8 @@ import psycopg2.extras
 from conf.conf import dbconf
 from datetime import datetime
 import tushare as ts
+import akshare as ak
+conn = None
 
 """
 start api
@@ -90,10 +92,9 @@ def insertUpdate(cursor, table, row, onConflictKeys=''):
         print([cursor.query])
         raise e
 
-
-
 # {database, user,  password, host, port}
 def getDbCursor(dbconf):
+    global conn
     conn = psycopg2.connect(**dbconf)
     conn.set_session(readonly=False, autocommit=True)
     # cursor = conn.cursor()
