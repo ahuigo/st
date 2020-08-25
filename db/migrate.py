@@ -1,7 +1,7 @@
 from db.conn import cursor, conn
 
 sql_dict = {
-    # "prices1":'drop table prices,keyvdb,profits',
+    "drop":'drop table profits',
     # "prices1":'drop table keyvdb',
     # "drop": "drop table metas,preprofits,profits,keyvdb",
     # "view":"create view profits_late as select distinct on (code) * from profits order by code,end_date desc;",
@@ -66,20 +66,14 @@ sql_dict = {
         roe decimal(6,2) not null default 0, --扣非roe
 
         -- 利润（年累计）
+        --- 营收
+        tr  decimal(14,2) not null default 0, -- 营收
         netprofit  decimal(14,2) not null default 0,  -- 净得
         dtprofit  decimal(14,2) not null default 0, -- 扣非净利debut 
 
         -- 利润(季度)
         q_netprofit	decimal(14,2) not null default 0, --净利(q_opincome)
         q_dtprofit	decimal(14,2) not null default 0, --扣非净利
-
-        -- 利润增长
-        tr_yoy decimal(14,2) not null default 0, --营收增长
-        netprofit_yoy decimal(14,2) not null default 0, --净利增长
-        dtprofit_yoy decimal(14,2) not null default 0, --净利增长
-        q_netprofit_yoy decimal(14,2) not null default 0, --净利增长
-        q_dtprofit_yoy decimal(14,2) not null default 0, --扣非净利增长(算)
-        
 
         -- 平均增长
         -- 营收: operating receipt, turnover
