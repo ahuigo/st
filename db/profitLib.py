@@ -1,5 +1,6 @@
 from conf import conf
 from lib import logger
+from api import xqApi
 from db import profitDb, keyvDb
 from db.conn import pro
 from itertools import islice
@@ -173,7 +174,50 @@ def pullProfitCode(ts_code):
     profitDb.addProfitBatch(df[profitCols])
     # return df[profitCols]
 
-def updateProfit(code, date):
-    symbol = getSymbol(code)
-    url = 'https://stock.xueqiu.com/v5/stock/finance/cn/indicator.json?symbol={symbol}&type=all&is_detail=true&count=10&timestamp='
+@keyvDb.withCache("profitXqLib", 86400 * 1)
+def pullXqProfitCode(ts_code, debug=False):
+    df = xqApi.getProfits(ts_code)
+    if isinstance(df, type(None)):
+        return
+
+    df["code"] = ts_code
+    df = df[
+        "code,ann_date,end_date,dtprofit,q_dtprofit,dny".split( ",")
+    ]
+    df["peg"] = df['dny']
+    df["buy"] = 1
+    df_length = len(df)
+    for index, row in df.iterrows():
+        # 有些数据index not exists
+        if (index+4) not in df.index:
+            continue
+        # 季度净得增长
+        if index + 4 < df_length:
+            # 利润list
+            monotonical_num = 0
+            q_dtprofit_list = df.loc[index : index + 3, "q_dtprofit"].to_list()
+
+            # 递减数
+            for q_dtprofit1, q_dtprofit2 in iterWindow(q_dtprofit_list, 2):
+                if q_dtprofit2<=0 or q_dtprofit1 < q_dtprofit2 *.8:
+                    monotonical_num += 1
+            # 递减太多
+            if ( monotonical_num >= 3):
+                df.loc[index, "buy"] = 0
+
+
+    if conf.DEBUG:
+        print(df)
+
+    if debug:
+        print(df)
+    profitCols = set(df.columns) - set(["float_share", "free_share"])
     profitDb.addProfitBatch(df[profitCols])
+    # return df
+
+if __name__ == "__main__":
+    code = '002798.SZ'
+    code = '000333.SZ'
+    pullXqProfitCode(code, True)
+    df = profitDb.getProfitByCode(code)
+    print(dict(df))

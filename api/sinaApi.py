@@ -8,8 +8,6 @@ import random
 import os,re
 from lib import logger
 
-xqApi = None
-
 def rmb(s:str)->float:
     s= s.replace('元','')
     return float(re.sub(r',','',s))
@@ -23,18 +21,6 @@ def parse163Code(ts_codes):
         codes[code] = tsCode
     return codes
 
-def getXqApi():
-    global xqApi
-    if not xqApi:
-        cookieFile = "./tmp/xq.cookie"
-        if os.path.exists(cookieFile):
-            with open(cookieFile) as f:
-                cookies = requests.utils.cookiejar_from_dict(pickle.load(f))
-                xqApi = requests.session(cookies=cookies)
-        else:
-            xqApi = requests.Session()
-
-    return xqApi
 
 
 def getPriceInfoByCodes(ts_codes):

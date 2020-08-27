@@ -1,10 +1,16 @@
 from db import metaDb
+from db import profitDb
+from db import profitLib
+from api import xqApi
+from lib import logger
 import re
+import time
 
 stockListStr = """
 中联重科:2300
 保利地产:1000
 美的集团:400
+红旗连锁:1000
 徐工机械:4000
 泸州老窖:200
 卫星石化:1000
@@ -194,7 +200,6 @@ stockListMap = getStockList(stockListStr)
 
 
 if __name__ == '__main__':
-    print("abc")
     ownSets = set()
     goodSets = set()
 
@@ -209,8 +214,26 @@ if __name__ == '__main__':
             m = m2.groupdict()
             goodSets.add(m['name'])
 
-    notOwn = '\n'.join(ownSets-goodSets)
-    print(notOwn)
+    badSets = ownSets-goodSets
+    badMsgs = []
+    for name in badSets:
+        code = metaDb.getCodeByName(name)
+        profit = profitDb.getProfitByCode(code)
+        levelInfo = metaDb.getMetaByCode(code)
+        end_date = profit["end_date"].strftime('%Y%m%d')
+        msg = f"{name}\t{code}:{profit['end_date']},dny={profit['dny']},level:{levelInfo['level']}"
+        
+        if profit['dny']<1.24 and end_date=='20200630':
+            badMsgs.append(msg)
+        else:
+            logger.lg(msg)
+        if not (end_date == '20200630'):
+            print(f'pull code {code}')
+            # dfProfit = xqApi.getProfits(code)
+            df = profitLib.pullXqProfitCode(code, True)
+            
+    for msg in badMsgs:
+        logger.lg(msg, hcolor="red")
     print(goodSets)
 
 

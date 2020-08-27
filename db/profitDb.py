@@ -52,7 +52,7 @@ def hasTradeProfit(code, end_date):
 
 
 def getProfitByCode(code,):
-    sql = f""" select p.*,metas.name from (select distinct on (code) code,end_date,pe,dtprofit_yoy,peg from profits where code='{code}' order by code,end_date desc  ) p join metas on metas.code=p.code"""
+    sql = f""" select p.*,metas.name from (select distinct on (code) code,end_date,pe,dtprofit_yoy,peg,dny from profits where code='{code}' order by code,end_date desc  ) p join metas on metas.code=p.code"""
     cursor.execute(sql)
     row = cursor.fetchone()
     return row
