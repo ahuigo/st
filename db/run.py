@@ -7,6 +7,7 @@ from lib import codelist
 from lib import logger
 from api import sinaApi
 from db import profitLib 
+import time
 
 TODAY = (date.today()).strftime("%Y%m%d")
 
@@ -104,10 +105,9 @@ def listen_disclosure(code):
             preprofitDb.add(row)
 
 
-# 拉取历史财报
 def pullProfit():
     for code in metaDb.getAllCode():
-        print(code)
+        print(code[:-2])
         profitLib.pullProfitCode(code)
         # metaDb.getMetaByCode(code, updateLevel=True)
 
@@ -119,7 +119,6 @@ def pullProfitGood():
         # metaDb.getMetaByCode(code, updateLevel=True)
 
 
-# 同步最新财报
 def syncProfit():
     # Sync 财报
     for row in preprofitDb.getSyncProfitList():
@@ -152,7 +151,7 @@ def getGood(codes=[]):
         )
 
     LATEST_END_DATE = (date.today() - timedelta(days=180)).strftime("%Y%m%d")
-    sql = f"select p.*,metas.name from (select distinct on (code) code,end_date,pe,peg,ny,dny,q_dtprofit_yoy,dtprofit_yoy,buy from profits where (netprofit_yoy>15 and q_dtprofit_yoy>-15 and end_date>='{LATEST_END_DATE}' and peg>1.25 and buy>=0  {where_codes}) order by code,end_date desc) p join metas on metas.code=p.code  order by p.peg desc"
+    sql = f"select p.*,metas.name from (select distinct on (code) code,end_date,pe,peg,ny,dny,q_dtprofit_yoy,dtprofit_yoy,buy from profits where (netprofit_yoy>15 and q_dtprofit_yoy>-10 and end_date>='{LATEST_END_DATE}' and peg>1.24 and buy>=0  {where_codes}) order by code,end_date desc) p join metas on metas.code=p.code  order by p.peg desc"
     print(sql)
     cursor.execute(sql)
     rows1 = [dict(row) for row in cursor]

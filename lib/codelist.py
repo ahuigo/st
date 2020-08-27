@@ -18,8 +18,6 @@ stockListStr = """
 通策医疗:100
 中国化学:2000
 中国平安:200
-智飞生物
-万孚生物
 新华保险:300
 中顺洁柔:1100
 精工钢构:4900
@@ -30,7 +28,6 @@ stockListStr = """
 沪电股份:700
 凯莱英:100
 创业慧康:700
-千方科技:700
 金发科技:2000
 亿联网络:200
 新宙邦:400
@@ -39,7 +36,6 @@ stockListStr = """
 亿纬锂能:200
 光环新网:600
 东方雨虹:200
-珀莱雅:100
 中公教育:300
 宁德时代:100
 中国太保:300
@@ -51,33 +47,82 @@ stockListStr = """
 长春高新:100
 新易盛:200
 
-
-迈为股份
 艾迪精密
+迈为股份
 浙江鼎力
+值得买  
+顺丰控股
 新华保险
+中国太保
 歌尔股份
+紫光国微
 立讯精密
 生益科技
-卓胜微  
-利民股份
+蒙娜丽莎
+科顺股份
 康龙化成
+丽珠集团
+苏博特  
+龙蟒佰利
+新宙邦  
+天赐材料
+杰瑞股份
+荣盛石化
+恒力石化
+阳光城  
+金域医学
+鱼跃医疗
 隆基股份
 小熊电器
+中联重科
+恒立液压
+中南建设
+招商积余
+齐心集团
 明阳智能
+祁连山  
+塔牌集团
+德赛西威
+星宇股份
+平煤股份
+碧水源  
+智飞生物
 凯莱英  
+长春高新
+汇川技术
+华测检测
+良信电器
+信捷电气
 晶澳科技
+天顺风能
+亿纬锂能
+五粮液  
 山西汾酒
+百润股份
 东方财富
+红旗连锁
 宝信软件
 中科创达
-闻泰科技
+柏楚电子
+同花顺  
+科大讯飞
+七一二  
 广和通  
+闻泰科技
+光迅科技
+天孚通信
+新易盛  
+亿联网络
 中顺洁柔
-精工钢构
+盐津铺子
+中炬高新
+安琪酵母
+千禾味业
+天味食品
+三全食品
+洽洽食品
 海大集团
-正邦科技
-
+紫金矿业
 
 """
 def parseNames(ignore_list_str):
@@ -146,3 +191,26 @@ def getStockList(stockListStr):
     return stockList
 
 stockListMap = getStockList(stockListStr)
+
+
+if __name__ == '__main__':
+    print("abc")
+    ownSets = set()
+    goodSets = set()
+
+    for line in stockListStr.strip().split("\n"):
+        line = line.strip()
+        m1 = re.match(r"(?P<name>\w+):(?P<num>\d+)", line)
+        m2 = re.match(r"(?P<name>\w+)", line)
+        if m1:
+            m = m1.groupdict()
+            ownSets.add(m['name'])
+        elif m2:
+            m = m2.groupdict()
+            goodSets.add(m['name'])
+
+    notOwn = '\n'.join(ownSets-goodSets)
+    print(notOwn)
+    print(goodSets)
+
+
