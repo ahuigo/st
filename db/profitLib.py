@@ -76,7 +76,7 @@ def pullProfitCode(ts_code):
         ts_code=ts_code,
         start_date="20150901",
         fields="""
-        ann_date,end_date,npta,profit_dedt,q_npta,q_dtprofit,tr_yoy,q_netprofit_yoy, netprofit_yoy,dt_netprofit_yoy,roe_dt
+        ann_date,end_date,profit_dedt,q_dtprofit,tr_yoy,q_netprofit_yoy, netprofit_yoy,dt_netprofit_yoy,roe_dt
         """.replace(
             " ", ""
         ),
@@ -94,7 +94,6 @@ def pullProfitCode(ts_code):
         columns={
             "npta": "netprofit",
             "profit_dedt": "dtprofit",
-            "q_npta": "q_netprofit",
             "dt_netprofit_yoy": "dtprofit_yoy",
             "roe_dt": "roe",
         },
@@ -103,13 +102,12 @@ def pullProfitCode(ts_code):
     # netprofit_yoy,dtprofit_yoy,
     df["code"] = ts_code
     df = df[
-        "code,ann_date,end_date,netprofit,dtprofit,netprofit_yoy,dtprofit_yoy,q_netprofit,q_dtprofit,tr_yoy,q_netprofit_yoy,roe".split(
+        "code,ann_date,end_date,netprofit,dtprofit,netprofit_yoy,dtprofit_yoy,q_dtprofit,tr_yoy,q_netprofit_yoy,roe".split(
             ","
         )
     ]
     df["q_dtprofit_yoy"] = 0
     df["try"] = 0
-    df["ny"] = 1
     df["dny"] = 1
     df["peg"] = 1
     df["pe"] = 0
@@ -153,10 +151,6 @@ def pullProfitCode(ts_code):
 
         if index + 8 <= df_length:
             df.loc[index, "try"] = df.loc[index : index + 3, "tr_yoy"].mean()
-            df.loc[index, "ny"] = ny = calc_multiple(
-                df.loc[index : index + 3, "q_netprofit"].sum(),
-                df.loc[index + 4 : index + 7, "q_netprofit"].sum(),
-            )
             # a1,a2 = df.loc[index : index + 3, "q_dtprofit"].sum(), df.loc[index + 4 : index + 7, "q_dtprofit"].sum()
             dny = calc_multiple(
                 df.loc[index : index + 3, "q_dtprofit"].sum(),
@@ -169,16 +163,8 @@ def pullProfitCode(ts_code):
                 print("coderow:",row)
 
             # 计算基础数据pe p-e-g
-            basic = parse_basic_by_day(basicDf, row.ann_date)
-            if basic is not None:
-                basic.fillna(0, inplace=True)
-                pe = basic.pe_ttm
-                dny = df.loc[index, "dny"]
-                df.loc[index, "pe"] = 32767 if pe >= 32768 else pe
-                df.loc[index, "float_share"] = basic.float_share
-                df.loc[index, "free_share"] = basic.free_share
-                peg = max(1 + 1 / pe, dny) if pe > 0 else 1
-                df.loc[index, "peg"] = peg
+            dny = df.loc[index, "dny"]
+            df.loc[index, "peg"] = dny
 
 
     if conf.DEBUG:
@@ -186,3 +172,8 @@ def pullProfitCode(ts_code):
     profitCols = set(df.columns) - set(["float_share", "free_share"])
     profitDb.addProfitBatch(df[profitCols])
     # return df[profitCols]
+
+def updateProfit(code, date):
+    symbol = getSymbol(code)
+    url = 'https://stock.xueqiu.com/v5/stock/finance/cn/indicator.json?symbol={symbol}&type=all&is_detail=true&count=10&timestamp='
+    profitDb.addProfitBatch(df[profitCols])
