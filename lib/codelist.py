@@ -254,7 +254,7 @@ if __name__ == '__main__':
             goodSets.add(m['name'])
 
     badSets = ownSets-goodSets
-    print("not end_date or dny<1.2:")
+    print("dny>1.2:")
     badMsgs = []
     for name in badSets:
         code = metaDb.getCodeByName(name)
@@ -267,7 +267,7 @@ if __name__ == '__main__':
         end_date = profit["end_date"].strftime('%Y%m%d')
         msg = f"{name}\t{code}:{profit['end_date']},dny={profit['dny']},level:{levelInfo['level']}"
         
-        if profit['dny']<1.20 and end_date=='20200630':
+        if profit['dny']<1.20:
             badMsgs.append(msg)
         else:
             logger.lg(msg)
