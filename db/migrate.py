@@ -5,7 +5,7 @@ sql_dict = {
     # "prices1":'drop table keyvdb',
     # "drop": "drop table metas,preprofits,profits,keyvdb",
     # "view":"create view profits_late as select distinct on (code) * from profits order by code,end_date desc;",
-    "drop": "drop table profits,keyvdb",
+    "drop": "drop table metas",
     "t": """
     create table t(
         code char(9) not null,

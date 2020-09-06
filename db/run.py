@@ -73,6 +73,7 @@ def genlist():
         "stock_basic", exchange="", list_status="L", fields="ts_code,name,industry"
     )
     data = data[data.apply(lambda row: "ST" not in row["name"], axis=1)]
+    print(data)
     data = data.rename(index=str, columns={"ts_code": "code"}).fillna("")
     debug(data)
     metaDb.addMetaBatch(data)
@@ -150,7 +151,7 @@ def getGood(codes=[]):
             ["'" + code + "'" for code in codes]
         )
 
-    LATEST_END_DATE = (date.today() - timedelta(days=180)).strftime("%Y%m%d")
+    LATEST_END_DATE = (date.today() - timedelta(days=90)).strftime("%Y%m%d")
     sql = f"select p.*,metas.name from (select distinct on (code) code,end_date,pe,peg,ny,dny,q_dtprofit_yoy,dtprofit_yoy,buy from profits where (netprofit_yoy>15 and q_dtprofit_yoy>-10 and end_date>='{LATEST_END_DATE}' and peg>1.24 and buy>=0  {where_codes}) order by code,end_date desc) p join metas on metas.code=p.code  order by p.peg desc"
     print(sql)
     cursor.execute(sql)

@@ -70,14 +70,14 @@ def parse_basic_by_day(df, ann_date):
     else:
         return None
 
-@keyvDb.withCache("profitLib", 86400 * 5)
+@keyvDb.withCache("profitLib", 86400 * 2)
 def pullProfitCode(ts_code):
-    time.sleep(60/80)
+    time.sleep(0.67)
     df = pro.fina_indicator(
         ts_code=ts_code,
         start_date="20150901",
         fields="""
-        ann_date,end_date,profit_dedt,q_dtprofit,tr_yoy,q_netprofit_yoy, netprofit_yoy,dt_netprofit_yoy,roe_dt
+        ann_date,end_date,npta,profit_dedt,q_dtprofit,tr_yoy,q_netprofit_yoy, netprofit_yoy,dt_netprofit_yoy,roe_dt
         """.replace(
             " ", ""
         ),
