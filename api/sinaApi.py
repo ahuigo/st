@@ -34,6 +34,8 @@ def getPriceInfoByCodes(ts_codes):
 def getPriceInfoByCodes163(ts_codes):
     codeListMap = parse163Code(ts_codes)
     codeList= list(codeListMap.keys())
+    if len(ts_codes)==0:
+        raise Exception("empty ts_codes")
     codeListStr = ','.join(codeList)
     headers = {
         "Referer": f'http://quotes.money.163.com/{codeList[0]}.html',

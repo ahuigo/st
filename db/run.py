@@ -151,7 +151,7 @@ def getGood(codes=[]):
             ["'" + code + "'" for code in codes]
         )
 
-    LATEST_END_DATE = (date.today() - timedelta(days=90)).strftime("%Y%m%d")
+    LATEST_END_DATE = (date.today() - timedelta(days=120)).strftime("%Y%m%d")
     sql = f"select p.*,metas.name from (select distinct on (code) code,end_date,pe,peg,ny,dny,q_dtprofit_yoy,dtprofit_yoy,buy from profits where (netprofit_yoy>15 and q_dtprofit_yoy>-10 and end_date>='{LATEST_END_DATE}' and peg>1.26 and buy>=0  {where_codes}) order by code,end_date desc) p join metas on metas.code=p.code  order by p.peg desc"
     print(sql)
     cursor.execute(sql)
@@ -164,7 +164,7 @@ def getGood(codes=[]):
 
         # update meta
         row.update(metaDb.getMetaByCode(code, updateLevel=True))
-        if row['level']<10*6:
+        if row['level']<60:
             continue
 
 
@@ -174,6 +174,7 @@ def getGood(codes=[]):
 
     # update price
     #if 'price' in Args.opt:
+    #print([row['code'] for row in rows])
     codePriceMap = sinaApi.getPriceInfoByCodes([row['code'] for row in rows])
     #priceDb.pullPrice(code)
     for row in rows:
