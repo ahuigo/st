@@ -35,6 +35,7 @@ cleanPrice:
 strategy:
 	python lib/strategyRun.py -cmd level 
 
+# 查看详情
 show:
 	python db/run.py -cmd show -code $(code)
 getName:

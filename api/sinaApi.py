@@ -5,7 +5,7 @@ from conf.conf import DEBUG
 from datetime import date
 import pandas as pd
 import random
-import os,re
+import os,re,time
 from lib import logger
 
 def rmb(s:str)->float:
@@ -114,10 +114,13 @@ def getProfitsByCode_todo(ts_code="000007.SZ", yearNum=1):
 
 # @keyvDb.withCache('sina:getlevel',60)
 def getLevel(ts_code="000007.SZ"):
+    time.sleep(0.3)
     code = ts_code[:-3]
     symbol = ts_code[-2:].lower() + code
     url = f"http://stock.finance.sina.com.cn/stock/api/openapi.php/StockMixService.khdGetStockComment?extra=mbj,ylyc,ndpj&chwm=32040_0002&device_id_fake=250213b90b10239d&imei=355212349711234&wm=b122&device_id_spns=250213b90b10239d&version=4.7.0.2&device_id_old=250213b90b10239d&from=7047095012&deviceid=209049f05b094d65&symbol={symbol}"
-    res = requests.get(url, timeout=10).json()
+    rtn = requests.get(url, timeout=10)
+    #print(rtn.text) 
+    res = rtn.json()
     jgpg = res["result"]["data"].get("jgpj",[])
     mbj = res["result"]["data"]["mbj"] #均价
     avg = mbj.get("avg", .1) 

@@ -20,12 +20,10 @@ done:
     4. draw line
 
 todo:
-    akshare
+1. 股票池: 使用机构研报买入排行榜前9*50个
+2. 使用盈利预测增长率2021/2020 排序，不要使用peg:
+    http://data.eastmoney.com/report/ylyc.html    
 
-todo1:
-    1.后端框架
-    2.level 评级数据
-    4. bench line线: 3维vs 2维
 
 记住：
     只在规定的时间交易
