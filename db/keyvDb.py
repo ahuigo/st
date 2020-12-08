@@ -25,8 +25,6 @@ def clearDb():
 """
 永久存储型Cache
 """
-
-
 def withCache(pre="profit", expire=864000):
     def singleOp(func):
         @wraps(func)

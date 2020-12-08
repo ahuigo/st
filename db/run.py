@@ -5,7 +5,7 @@ from datetime import datetime, date, timedelta
 from dateutil.parser import parse as strptime
 from lib import codelist
 from lib import logger
-from api import sinaApi
+from api import sinaApi,goodLevelApi
 from db import profitLib 
 import time
 
@@ -152,22 +152,31 @@ def getGood(codes=[]):
         )
 
     LATEST_END_DATE = (date.today() - timedelta(days=120)).strftime("%Y%m%d")
-    sql = f"select p.*,metas.name from (select distinct on (code) code,end_date,pe,peg,ny,dny,q_dtprofit_yoy,dtprofit_yoy,buy from profits where (netprofit_yoy>26 and q_dtprofit_yoy>-10 and end_date>='{LATEST_END_DATE}' and peg>1.30 and buy>=0  {where_codes}) order by code,end_date desc) p join metas on metas.code=p.code  order by p.peg desc"
+    sql = f"select p.*,metas.name from (select distinct on (code) code,end_date,pe,peg,ny,dny,q_dtprofit_yoy,dtprofit_yoy,buy from profits where (netprofit_yoy>10 and q_dtprofit_yoy>-10 and end_date>='{LATEST_END_DATE}' and peg>1.10   {where_codes}) order by code,end_date desc) p join metas on metas.code=p.code  order by p.peg desc"
     print(sql)
     cursor.execute(sql)
+    # 业绩good
     rows1 = [dict(row) for row in cursor]
     rows = []
+    # 预期good
+    highLevelStocks = goodLevelApi.getGoodLevelStocks()
+    highLevelStockDf = pd.DataFrame(highLevelStocks)
+    highLevelStockDf.index = highLevelStockDf['stockCode']
+    #     df.set_index('name', inplace=True)
+    
     for idx, row in enumerate(rows1):
         code = row["code"]
-        # disclosure
-        # listen_disclosure(code)
-
-        # update meta
-        row.update(metaDb.getMetaByCode(code, updateLevel=True))
-        if row['level']<98:
+        if code[0:6] not in highLevelStockDf.index:
+            continue
+        goodStock = highLevelStockDf.loc[code[0:6]]
+        row['rateEps'] = goodStock['rateEps']
+        row['level'] = goodStock['rateBuy']
+        if row['level']<20:
+            continue
+        if row['rateEps']<0.3:
             continue
 
-
+        row.update(metaDb.getMetaByCode(code, updateLevel=False))
         # mean 60
         # row["mean"] = priceDb.getPriceMean(row["code"], TODAY)
         rows.append(row)
@@ -175,15 +184,19 @@ def getGood(codes=[]):
     # update price
     #if 'price' in Args.opt:
     #print([row['code'] for row in rows])
+    if len(rows) == 0:
+        quit('No good stocks')
     codePriceMap = sinaApi.getPriceInfoByCodes([row['code'] for row in rows])
     #priceDb.pullPrice(code)
     for row in rows:
         row["price"] = codePriceMap[row['code']]['price']
-        row["change"] = 100*float(row['level_price'])/float(row["price"])-100
+        # row["change"] = 100*float(row['level_price'])/float(row["price"])-100
 
-    cols = ['end_date','name', 'code','industry','level','price','level_price','change','dny','dtprofit_yoy','q_dtprofit_yoy','ny','pe','peg']
+    # cols = ['end_date','name', 'code','industry','rateEps','level','price','dny','dtprofit_yoy','q_dtprofit_yoy','ny','pe','peg']
+    cols = ['end_date','name', 'code','industry','rateEps','level','price','dny','dtprofit_yoy','q_dtprofit_yoy','peg']
     #df = pd.DataFrame(rows)[cols].sort_values(by=['industry', 'level'], ascending=False)
-    df = pd.DataFrame(rows)[cols].sort_values(by=['industry', 'change'], ascending=True)
+    # df = pd.DataFrame(rows)[cols].sort_values(by=['rateEps'], ascending=False)
+    df = pd.DataFrame(rows)[cols].sort_values(by=['industry', 'rateEps'], ascending=False)
     df = df.groupby('industry').head(10)
     #df = pd.DataFrame(rows)[cols].sort_values(by=['industry', 'peg'], ascending=False)
     print("goodp\n", df)
