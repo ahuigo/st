@@ -151,7 +151,7 @@ def getGood(codes=[]):
             ["'" + code + "'" for code in codes]
         )
 
-    LATEST_END_DATE = (date.today() - timedelta(days=120)).strftime("%Y%m%d")
+    LATEST_END_DATE = (date.today() - timedelta(days=140)).strftime("%Y%m%d")
     sql = f"select p.*,metas.name from (select distinct on (code) code,end_date,pe,peg,ny,dny,q_dtprofit_yoy,dtprofit_yoy,buy from profits where (netprofit_yoy>10 and q_dtprofit_yoy>-10 and end_date>='{LATEST_END_DATE}' and peg>1.10   {where_codes}) order by code,end_date desc) p join metas on metas.code=p.code  order by p.peg desc"
     print(sql)
     cursor.execute(sql)
@@ -170,13 +170,14 @@ def getGood(codes=[]):
             continue
         goodStock = highLevelStockDf.loc[code[0:6]]
         row['rateEps'] = goodStock['rateEps']
-        row['level'] = goodStock['rateBuy']
-        if row['level']<20:
+        level = row['level'] = goodStock['rateBuy']
+        if level<20:
             continue
         if row['rateEps']<0.3:
             continue
 
         row.update(metaDb.getMetaByCode(code, updateLevel=False))
+        row['level'] = level
         # mean 60
         # row["mean"] = priceDb.getPriceMean(row["code"], TODAY)
         rows.append(row)

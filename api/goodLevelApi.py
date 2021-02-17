@@ -2,6 +2,7 @@ import requests
 import 	random
 import json,math
 from db import keyvDb
+from lib import logger
 from functools import cmp_to_key
 import re
 import time
@@ -30,6 +31,7 @@ def getDcApi():
 def getYearEps(code):
     global thsApi
     user_agent= 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.1.2 Safari/605.1.15'
+    # 业绩预测
     url =f'http://basic.10jqka.com.cn/{code}/worth.html' 
     cookies = {
         'reviewJump': 'nojump',
@@ -43,11 +45,16 @@ def getYearEps(code):
     l = pd.read_html(respText)
     try:
         df=l[0] 
-        thisYearEps = df[df.年度==2020].iloc[0]['均值']
-        nextYearEps = df[df.年度==2021].iloc[0]['均值']
-        rateBuy = df[df.年度==2020].iloc[0]['预测机构数']
+        thisYear = min(df['年度'].values)
+        nextYear = thisYear+1
+        thisYearEps = df[df.年度==thisYear].iloc[0]['均值']
+        nextYearEps = df[df.年度==nextYear].iloc[0]['均值']
+        rateBuy = df[df.年度==thisYear].iloc[0]['预测机构数']
+        if rateBuy==0:
+            print("levelApi.py:54",df)
         return thisYearEps, nextYearEps,rateBuy
     except Exception as e:
+        print(l[0])
         raise e
 
 
