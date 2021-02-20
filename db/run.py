@@ -22,7 +22,7 @@ def prev_weekday():
 import os, sys, json
 import code
 from db import priceDb, metaDb, keyvDb, profitDb
-from db.conn import pro
+from db.conn import getProApi
 
 import argparse
 
@@ -69,7 +69,7 @@ def debug(v):
 
 def genlist():
     debug(["genlist"])
-    data = pro.query(
+    data = getProApi().query(
         "stock_basic", exchange="", list_status="L", fields="ts_code,name,industry"
     )
     data = data[data.apply(lambda row: "ST" not in row["name"], axis=1)]
@@ -93,17 +93,6 @@ next_end_date = "20190930"
 
 from db import preprofitDb
 
-
-@keyvDb.withCache(pre="disclosure", expire=86400)
-def listen_disclosure(code):
-    df = pro.disclosure_date(ts_code=code, end_date=TODAY)
-    if not df.empty:
-        row = df.iloc[0, ["ts_code", "end_date", "pre_date"]].rename(
-            index={"ts_code": "code", "pre_date": "ann_date"}
-        )
-        if row.end_date >= next_end_date:
-            row = row.to_dict()
-            preprofitDb.add(row)
 
 
 def pullProfit():
@@ -134,17 +123,12 @@ def showCode():
     for ts_code in codes:
         if not Args.nonetwork:
             profitLib.pullProfitCode(ts_code)
-            metaDb.getMetaByCode(ts_code, updateLevel=True)
+            # metaDb.getMetaByCode(ts_code, updateLevel=False)
         profitDb.showCode(ts_code)
-        # df = pro.express(ts_code=ts_code, start_date='20180101', end_date='20191201', fields='ts_code,ann_date,end_date,revenue,operate_profit,total_profit,n_income,total_assets')
         # print('6000',df)
 
 def getGood(codes=[]):
     from db.conn import cursor
-    #from lib.codelist import keji_codes
-    # profitDb.updateBuy()
-    # metaDb.updateLevel()
-
     where_codes = ""
     if len(codes):
         where_codes = " and code in (%s) " % ",".join(
@@ -152,7 +136,7 @@ def getGood(codes=[]):
         )
 
     LATEST_END_DATE = (date.today() - timedelta(days=140)).strftime("%Y%m%d")
-    sql = f"select p.*,metas.name from (select distinct on (code) code,end_date,pe,peg,ny,dny,q_dtprofit_yoy,dtprofit_yoy,buy from profits where (netprofit_yoy>10 and q_dtprofit_yoy>-10 and end_date>='{LATEST_END_DATE}' and peg>1.10   {where_codes}) order by code,end_date desc) p join metas on metas.code=p.code  order by p.peg desc"
+    sql = f"select p.*,metas.name from (select distinct on (code) code,end_date,pe,peg,ny,dny,q_dtprofit_yoy,dtprofit_yoy,buy from profits where (netprofit_yoy>10 and end_date>='{LATEST_END_DATE}' and peg>1.10   {where_codes}) order by code,end_date desc) p join metas on metas.code=p.code  order by p.peg desc"
     print(sql)
     cursor.execute(sql)
     # 业绩good
@@ -162,7 +146,6 @@ def getGood(codes=[]):
     highLevelStocks = goodLevelApi.getGoodLevelStocks()
     highLevelStockDf = pd.DataFrame(highLevelStocks)
     highLevelStockDf.index = highLevelStockDf['stockCode']
-    #     df.set_index('name', inplace=True)
     
     for idx, row in enumerate(rows1):
         code = row["code"]
@@ -178,22 +161,17 @@ def getGood(codes=[]):
 
         row.update(metaDb.getMetaByCode(code, updateLevel=False))
         row['level'] = level
-        # mean 60
-        # row["mean"] = priceDb.getPriceMean(row["code"], TODAY)
         rows.append(row)
 
-    # update price
-    #if 'price' in Args.opt:
-    #print([row['code'] for row in rows])
     if len(rows) == 0:
         quit('No good stocks')
+
+    # update price
     codePriceMap = sinaApi.getPriceInfoByCodes([row['code'] for row in rows])
-    #priceDb.pullPrice(code)
     for row in rows:
         row["price"] = codePriceMap[row['code']]['price']
         # row["change"] = 100*float(row['level_price'])/float(row["price"])-100
 
-    # cols = ['end_date','name', 'code','industry','rateEps','level','price','dny','dtprofit_yoy','q_dtprofit_yoy','ny','pe','peg']
     cols = ['end_date','name', 'code','industry','rateEps','level','price','dny','dtprofit_yoy','q_dtprofit_yoy','peg']
     #df = pd.DataFrame(rows)[cols].sort_values(by=['industry', 'level'], ascending=False)
     # df = pd.DataFrame(rows)[cols].sort_values(by=['rateEps'], ascending=False)
@@ -202,6 +180,14 @@ def getGood(codes=[]):
     #df = pd.DataFrame(rows)[cols].sort_values(by=['industry', 'peg'], ascending=False)
     print("goodp\n", df)
 
+
+def filterGoodStock(stock):
+    good = True
+    if stock['rateEps']<0.25:
+        return False
+    if stock['rateEps']<0.25:
+        return False
+    return good
 
 if __name__ == "__main__":
     print(Args)

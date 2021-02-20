@@ -3,16 +3,21 @@ import psycopg2.extras
 from conf.conf import dbconf
 from datetime import datetime
 import tushare as ts
-import akshare as ak
+#import akshare as ak
 conn = None
 
 """
 start api
 """
 
-key = open("conf/ts.key").read().strip()
-pro = ts.pro_api(key)
-pro.pro_bar = ts.pro_bar
+pro = None
+def getProApi():
+    global pro
+    if pro is None:
+        key = open("conf/ts.key").read().strip()
+        pro = ts.pro_api(key)
+        pro.pro_bar = ts.pro_bar
+    return pro
 
 """
 Db

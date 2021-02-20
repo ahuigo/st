@@ -31,7 +31,10 @@ def getXqApi():
     global xqApi
     if not xqApi:
         xqApi = requests.Session()
-        cookieFile = "./tmp/xq.cookie"
+        cookieDir = "./tmp"
+        cookieFile = f"{cookieDir}/xq.cookie"
+        if not os.path.exists(cookieDir):
+            os.mkdir(cookieDir)
         if os.path.exists(cookieFile):
             with open(cookieFile,'rb') as f:
                 xqApi.cookies.update(pickle.load(f))
@@ -42,27 +45,25 @@ def getXqApi():
 
     return xqApi
 
+@keyvDb.withCache('xq:getProfits', expire=86400*10)
 def getProfits(ts_code):
-    print(f"pull xq:{ts_code} ... ")
     time.sleep(1)
     symbol = parseCode(ts_code)
     timestamp = str(int(time.time()*1000))
-    url = f'https://stock.xueqiu.com/v5/stock/finance/cn/indicator.json?symbol={symbol}&type=all&is_detail=true&count=8&timestamp={timestamp}'
+    url = f'https://stock.xueqiu.com/v5/stock/finance/cn/indicator.json?symbol={symbol}&type=all&is_detail=true&count=10&timestamp={timestamp}'
+    print(f"pull xq indicator:{url} ... ")
     response = getXqApi().get(url, headers=headers)
     try:
         res = response.json()
     except Exception as e:
         print(response.text)
         raise e
-    if res['data']['last_report_name'] != '2020中报':
-        print("no 中报(不更新)")
-        return
+    # if res['data']['last_report_name'] != '2020中报':
     rows = []
     for item in res['data']['list']:
         end_date = datetime.fromtimestamp(item['report_date']/1000).strftime('%Y%m%d')
         row = {
             'end_date': end_date,
-            'ann_date': end_date,
             'code': ts_code,
             "dtprofit": item['net_profit_after_nrgal_atsolc'][0],
         }

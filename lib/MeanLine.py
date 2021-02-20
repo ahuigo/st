@@ -149,7 +149,6 @@ def setPegLine(prices, code, mean_period=15):
         old_price2 = getVirtualPriceByDay(
             prices, cur_date - timedelta(days=mean_period), priceKey="mean"
         )[1]
-        # peg = profitDb.getPegByCodeDay(code, cur_date)
         # priceInfo["add"] = (old_price2 - old_price1) * mean_period / DIFF_PERIOD
         priceInfo["period"] = mean_period
         priceInfo["evalue"] = (

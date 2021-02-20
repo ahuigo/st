@@ -12,6 +12,7 @@ def add_q_value(df, profit_indicator, yoy_key):
     df_len = len(df)
     qk = 'q_'+profit_indicator
     df[qk] = 0
+    df[yoy_key] = float(0)
 
     for i in range(df_len):
         curr = df.iloc[i]
@@ -35,11 +36,12 @@ def add_q_value(df, profit_indicator, yoy_key):
             else:
                 # print(curr, int(curr[profit_indicator]))
                 profit_dedt = curr[profit_indicator]-prev[profit_indicator]
-        df['q_'+profit_indicator].iat[i] = (profit_dedt)
+        df[qk].iat[i] = (profit_dedt)
         # df.iloc[i]['q_profit_dedt'] = int(profit_dedt)
-    df[yoy_key] = float(0)
     if len(df)>=8:
         l = df[qk]
-        print(sum(l[0:4])/sum(l[4:8]))
-        df[yoy_key].iat[0] = (sum(l[0:4])/sum(l[4:8]))
+        dny = (sum(l[0:4])/sum(l[4:8]))
+        if sum(l[0:4])<=0:
+            dny = -1
+        df[yoy_key].iat[0] = dny
     return df

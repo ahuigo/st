@@ -40,3 +40,8 @@ show:
 	python db/run.py -cmd show -code $(code)
 getName:
 	python db/run.py -cmd getName -code $(code)
+
+
+profile:
+	python -m cProfile -o out.pstats db/run.py -cmd show -code 三一重工
+	python bench/py-perf.py

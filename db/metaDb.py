@@ -1,4 +1,4 @@
-from db.conn import cursor, pro
+from db.conn import cursor
 from datetime import datetime, date, timedelta
 from api import sinaApi
 from db import keyvDb
@@ -13,7 +13,6 @@ def getCode(ts_code):
 
 def addMeta(data):
     cursor.insertUpdate("metas", data, "code,trade_date")
-
 
 def addMetaBatch(meta_list):
     # if str(type(meta_list)) == "<class 'pandas.core.frame.DataFrame'>":
@@ -75,37 +74,13 @@ def getMetaList(page=1, size=20):
     return cursor.fetchall()
 
 
-def getPchange(code):
-    today = (date.today() - timedelta(days=60)).strftime("%Y%m%d")
-    df = pro.forecast(
-        ts_code=code,
-        start_date=today,
-        fields="ann_date,end_date,type,p_change_min,p_change_max,net_profit_min",
-    )
-    if not df.empty:
-        f = df.iloc[0].fillna(0)
-        return (f.p_change_min + f.p_change_max) / 2
-
-
-def getPchangeInfo(code):
-    today = (date.today() - timedelta(days=60)).strftime("%Y%m%d")
-    df = pro.forecast(
-        ts_code=code,
-        start_date=today,
-        fields="ann_date,end_date,type,p_change_min,p_change_max,net_profit_min",
-    )
-    if not df.empty:
-        f = df.iloc[0].fillna(0)
-        return (f.p_change_min + f.p_change_max) / 2
-
 
 # @private
-# @keyvDb.withCache("syncMetaCode", 86400 * 1)
-def syncMetaCode(code):
+# @keyvDb.withCache("syncMetaLevel", 86400 * 1)
+def syncMetaLevel(code):
     print('sync meta:'+code)
     # p_change/level/level_price/90mean
     row = {"code": code}
-    # row["p_change"] = getPchange(code)
     level = sinaApi.getLevel(code)
     print(level)
     row = {**row, **level}
@@ -117,7 +92,7 @@ def getMetaByCode(code, updateLevel=False,expire=86400*30):
     cursor.execute("select*from metas where code=%s ", [code])
     row = cursor.fetchone()
     if updateLevel and ((datetime.now() - row["update_time"]).total_seconds() > expire or row['level_price']==0):
-        syncMetaCode(code)
+        syncMetaLevel(code)
         cursor.execute("select*from metas where code=%s ", [code])
         row = cursor.fetchone()
     return row
@@ -139,4 +114,4 @@ def getBank():
     print(df)
 
 if __name__ == "__main__":
-    syncMetaCode("601318.SH") # __main__
+    syncMetaLevel("601318.SH") # __main__

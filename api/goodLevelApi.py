@@ -3,6 +3,7 @@ import 	random
 import json,math
 from db import keyvDb
 from lib import logger
+from api import xqApi
 from functools import cmp_to_key
 import re
 import time
@@ -101,4 +102,9 @@ def getGoodLevelStocks(rate=0.25):
 if __name__=='__main__':
     data = getGoodLevelStocks()
     for stock in data:
+        print(stock)
+        ts_code = stock['stockCode']
+        ts_code = ts_code+'.SH' if ts_code[0]=='6' else ts_code+'.SZ' 
+        df = xqApi.getProfits(ts_code)
+        print('profit',df)
         print(f'{stock["stockCode"]}\t'+stock['stockName']+f":{stock['thisYearEps']}~{stock['nextYearEps']}={stock['rateEps']} buy={stock['rateBuy']}")

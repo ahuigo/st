@@ -4,7 +4,7 @@ import pandas as pd
 from . import exchangeDb
 from api import sinaApi
 from db import keyvDb
-from db.conn import pro
+from db.conn import getProApi
 from conf.conf import DEBUG
 
 
@@ -81,7 +81,7 @@ def pullPrice(code, start_date=""):
         row = getLatestPriceRow(code)
         start_date = row["trade_date"].strftime("%Y%m%d") if row else "20190501"
     # if start_date < exchangeDb.getTradeDate():
-    data = pro.pro_bar(api=pro, ts_code=code, adj="qfq", start_date=start_date)
+    data = getProApi().pro_bar(api=getProApi(), ts_code=code, adj="qfq", start_date=start_date)
     # data=data[data.apply(lambda row:'ST' not in row['name'], axis=1)]
     data = (
         data[["ts_code", "trade_date", 'high','low',"close"]]

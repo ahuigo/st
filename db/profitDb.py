@@ -66,30 +66,3 @@ def getProfitHistoryByPage(code, page=1, size=20):
         [end_date, code, size, offset],
     )
     return cursor.fetchall()
-
-
-def getPegListByCode(code):
-    cursor.execute(
-        "select ann_date,peg from profits where code=%s order by ann_date", [code],
-    )
-    rows = cursor.fetchall()
-    # for i,row in enumerate(rows):
-    #     rows[i] = row
-    return rows
-
-
-all_pegs = {}
-
-
-def getPegByCodeDay(code, day):
-    if code not in all_pegs:
-        all_pegs[code] = getPegListByCode(code) or []
-
-    pegs = all_pegs[code]
-    peg = 1
-    for pegInfo in pegs:
-        if pegInfo["ann_date"] < day:
-            peg = pegInfo["peg"]
-        else:
-            break
-    return float(peg)
