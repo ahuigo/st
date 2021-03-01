@@ -65,15 +65,13 @@ sql_dict = {
     create table profits(
         code char(9) not null,  -- 季报
         end_date date not null, -- 季报结束日期
-        -- ann_date date not null default '19700101', -- 报告期
-        roe decimal(6,2) not null default 0, --扣非roe
+        -- 营收
+        tr decimal(14,2) not null default 0, 
 
         -- 利润（年累计）
-        -- netprofit  decimal(14,2) not null default 0,  -- 净得
         dtprofit  decimal(14,2) not null default 0, -- 扣非净利debut 
 
         -- 利润(季度)
-        -- q_netprofit	decimal(14,2) not null default 0, --净利(q_opincome)
         q_dtprofit	decimal(14,2) not null default 0, --扣非净利
 
         -- 利润增长

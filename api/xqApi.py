@@ -66,10 +66,13 @@ def getProfits(ts_code):
             'end_date': end_date,
             'code': ts_code,
             "dtprofit": item['net_profit_after_nrgal_atsolc'][0],
+            "tr": item['total_revenue'][0],
+            "try": item['total_revenue'][1],
         }
         rows.append(row)
     df =  pd.DataFrame(rows)
     df = apiUtil.add_q_value(df, 'dtprofit','dny')
+    df = apiUtil.add_q_value(df, 'tr','try')
     return df
 
 

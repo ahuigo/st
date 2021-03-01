@@ -127,7 +127,7 @@ def showCode():
         profitDb.showCode(ts_code)
         # print('6000',df)
 
-def getGood(codes=[]):
+def getGood2(codes=[]):
     from db.conn import cursor
     where_codes = ""
     if len(codes):
@@ -180,6 +180,54 @@ def getGood(codes=[]):
     #df = pd.DataFrame(rows)[cols].sort_values(by=['industry', 'peg'], ascending=False)
     print("goodp\n", df)
 
+def getGood(codes=[]):
+    from db.conn import cursor
+    where_codes = ""
+    if len(codes):
+        where_codes = " and code in (%s) " % ",".join(
+            ["'" + code + "'" for code in codes]
+        )
+
+    LATEST_END_DATE = (date.today() - timedelta(days=160)).strftime("%Y%m%d")
+    sql = f"select p.*,metas.name from (select distinct on (code) code,end_date,pe,peg,dny,tr,try,buy from profits where (dny>1.20 and try>1.20 and end_date>='{LATEST_END_DATE}' {where_codes}) order by code,end_date desc) p join metas on metas.code=p.code  order by p.peg desc"
+    print(sql)
+    cursor.execute(sql)
+    # profit good
+    rows1 = [dict(row) for row in cursor]
+    rows = []
+    # 预期good
+    highLevelStocks = goodLevelApi.getGoodLevelStocks()
+    highLevelStockDf = pd.DataFrame(highLevelStocks)
+    highLevelStockDf.index = highLevelStockDf['stockCode']
+    
+    for _, row in highLevelStockDf.iterrows():
+        code = row["code"]
+        level = row['level'] = row['rateBuy']
+        if level<20:
+            continue
+        if row['rateEps']<0.3:
+            continue
+
+        row.update(metaDb.getMetaByCode(code, updateLevel=False))
+        row['level'] = level
+        rows.append(row)
+
+    if len(rows) == 0:
+        quit('No good stocks')
+
+    # update price
+    codePriceMap = sinaApi.getPriceInfoByCodes([row['code'] for row in rows])
+    for row in rows:
+        row["price"] = codePriceMap[row['code']]['price']
+        # row["change"] = 100*float(row['level_price'])/float(row["price"])-100
+
+    cols = ['end_date','name', 'code','industry','rateEps','level','price','dny','dtprofit_yoy','q_dtprofit_yoy','peg']
+    #df = pd.DataFrame(rows)[cols].sort_values(by=['industry', 'level'], ascending=False)
+    # df = pd.DataFrame(rows)[cols].sort_values(by=['rateEps'], ascending=False)
+    df = pd.DataFrame(rows)[cols].sort_values(by=['industry', 'rateEps'], ascending=False)
+    df = df.groupby('industry').head(10)
+    #df = pd.DataFrame(rows)[cols].sort_values(by=['industry', 'peg'], ascending=False)
+    print("goodp\n", df)
 
 def filterGoodStock(stock):
     good = True
