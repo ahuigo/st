@@ -8,6 +8,7 @@ def addProfit(row):
 
 
 def addProfitBatch(profit_list):
+    # print(profit_list)
     cursor.insertBatch("profits", profit_list, "code,end_date")
     # cursor.insertBatch("profits", profit_list, '')
 

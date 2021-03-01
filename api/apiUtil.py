@@ -7,6 +7,7 @@ import pandas as pd
 import random
 import os,re
 from lib import logger
+import math
 
 def add_q_value(df, profit_indicator, yoy_key):
     df_len = len(df)
@@ -17,6 +18,8 @@ def add_q_value(df, profit_indicator, yoy_key):
     for i in range(df_len):
         curr = df.iloc[i]
         end_date = curr['end_date']
+        end_date = end_date.strftime('%Y%m%d')
+        # // .strftime('%Y%m%d')
         j = i+1
         if j==df_len:
             if end_date[-4:] == '0331':
@@ -36,7 +39,10 @@ def add_q_value(df, profit_indicator, yoy_key):
             else:
                 # print(curr, int(curr[profit_indicator]))
                 profit_dedt = curr[profit_indicator]-prev[profit_indicator]
-        df[qk].iat[i] = (profit_dedt)
+        if not math.isnan(profit_dedt):
+            df[qk].iat[i] = (profit_dedt)
+        # except Exception as e:
+        #     logger.lg(qk,profit_dedt, df)
         # df.iloc[i]['q_profit_dedt'] = int(profit_dedt)
     if len(df)>=8:
         l = df[qk]

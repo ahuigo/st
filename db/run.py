@@ -120,6 +120,7 @@ def syncProfit():
 
 def showCode():
     codes = codelist.parseCodes(Args.code)
+    logger.lg('showCodes:',codes)
     for ts_code in codes:
         if not Args.nonetwork:
             profitLib.pullProfitCode(ts_code)

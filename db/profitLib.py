@@ -47,12 +47,13 @@ def pullProfitCode(ts_code):
 @keyvDb.withCache("pullXqProfitCode", 86400 * 1)
 def pullXqProfitCode(ts_code, debug=False):
     df = xqApi.getProfits(ts_code)
+    logger.lg(df)
     if isinstance(df, type(None)):
         return
 
     df["code"] = ts_code
     df = df[
-        "code,end_date,dtprofit,q_dtprofit,dny".split(",")
+        "code,end_date,dtprofit,q_dtprofit,dny,tr,try".split(",")
     ]
     df["peg"] = df['dny']
     df["buy"] = 1

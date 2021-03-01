@@ -61,7 +61,8 @@ def getProfits(ts_code):
     # if res['data']['last_report_name'] != '2020中报':
     rows = []
     for item in res['data']['list']:
-        end_date = datetime.fromtimestamp(item['report_date']/1000).strftime('%Y%m%d')
+        d = datetime.fromtimestamp(item['report_date']/1000)
+        end_date = date(d.year,d.month,d.day)
         row = {
             'end_date': end_date,
             'code': ts_code,
@@ -69,12 +70,12 @@ def getProfits(ts_code):
             "tr": item['total_revenue'][0],
             "try": item['total_revenue'][1],
         }
+        logger.lg(row)
         rows.append(row)
     df =  pd.DataFrame(rows)
     df = apiUtil.add_q_value(df, 'dtprofit','dny')
     df = apiUtil.add_q_value(df, 'tr','try')
     return df
-
 
 
 def parseCode(ts_code):
