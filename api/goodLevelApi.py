@@ -31,6 +31,7 @@ def getDcApi():
 @keyvDb.withCache('goodLevelApi:getYearEps', expire=86400*10)
 def getYearEps(code):
     global thsApi
+    print(f'getYearEps(${code})')
     user_agent= 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.1.2 Safari/605.1.15'
     # 业绩预测
     url =f'http://basic.10jqka.com.cn/{code}/worth.html' 
@@ -43,8 +44,9 @@ def getYearEps(code):
     }
     respText = thsApi.get(url, headers=headers, cookies=cookies).text
     respText = respText.encode('latin-1').decode('gbk')
-    l = pd.read_html(respText)
     try:
+        time.sleep(0.4)
+        l = pd.read_html(respText)
         df=l[0] 
         thisYear = min(df['年度'].values)
         nextYear = thisYear+1
@@ -55,7 +57,7 @@ def getYearEps(code):
             print("levelApi.py:54",df)
         return thisYearEps, nextYearEps,rateBuy
     except Exception as e:
-        print(l[0])
+        print('getYearEps',url,respText)
         raise e
 
 
@@ -67,6 +69,7 @@ def getHighLevelStocks():
     cbi = random.randint(1100575,8100575)
     cb = f'datatable{cbi}'
     for pageNo in range(1,8):
+        print('pageNo:',pageNo)
         pageSize=100
         url = f'http://reportapi.eastmoney.com/report/predic?cb=datatable{cbi}&dyCode=*&pageNo={pageNo}&pageSize={pageSize}&fields=&beginTime=2019-11-09&endTime=2020-11-10&hyCode=*&gnCode=*&marketCode=*&sort=count%2Cdesc&p=3&pageNum=3&_=1604868940265' 
         params = { }
