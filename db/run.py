@@ -145,11 +145,16 @@ def getGood(codes=[]):
     rows  = []
     highLevelStocks = goodLevelApi.getGoodLevelStocks()
     cols = ['code','name','rateEps','thisYearEps', 'nextYearEps','level']
-    highLevelStockDf = pd.DataFrame(highLevelStocks).rename(columns={ 
+    if len(highLevelStocks)==0:
+        quit('no good stocks 1')
+    highLevelStockDf = pd.DataFrame(highLevelStocks)
+    highLevelStockDf = highLevelStockDf.rename(columns={ 
         "stockCode": "code",
         "stockName": 'name',
         "level":"level",
-    })[cols]
+    })
+    # print(highLevelStockDf.columns)
+    highLevelStockDf = highLevelStockDf[cols]
     highLevelStockDf.index = highLevelStockDf['code']
     
     for _, row in highLevelStockDf.iterrows():
@@ -166,17 +171,19 @@ def getGood(codes=[]):
 
         if 'dny' not in row:
             continue
+        if row['dny']<1.25:
+            continue
 
         # 3. profit
         if row['buy']==0:
             continue
         
         # code,end_date,dtprofit,q_dtprofit,dny,tr,try
-        print(row)
+        # print(row)
         rows.append(row)
 
     if len(rows) == 0:
-        quit('No good stocks')
+        quit('No good stocks 2')
 
     # update price
     codePriceMap = sinaApi.getPriceInfoByCodes([row['code'] for row in rows])

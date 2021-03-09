@@ -69,11 +69,14 @@ def getHighLevelStocks():
     stocks = getHighLevelStocksRaw()
     rows = []
     for stock in stocks:
+        # print(stock)
         if stock['nextYearProfit']=='':
             continue
         # rateBuy
         stock['level'] = stock['rateBuy']
-        stock['rateEps'] = float(stock['nextYearProfit'])/float(stock['thisYearProfit']) -1
+        # stock['rateEps'] = float(stock['nextYearProfit'])/float(stock['thisYearProfit']) -1
+        # stock['rateEps'] = float(stock['nextYearProfit'])/float(stock['lastYearActualProfit']) -1
+        stock['rateEps'] = float(stock['thisYearProfit'])/float(stock['lastYearActualProfit']) -1
         rows.append(stock)
     return rows
 
@@ -87,7 +90,8 @@ def getHighLevelStocksRaw():
     for pageNo in range(1,8):
         print('pageNo:',pageNo)
         pageSize=100
-        url = f'http://reportapi.eastmoney.com/report/predic?cb=datatable{cbi}&dyCode=*&pageNo={pageNo}&pageSize={pageSize}&fields=&beginTime=2019-11-09&endTime=2020-11-10&hyCode=*&gnCode=*&marketCode=*&sort=count%2Cdesc&p=3&pageNum=3&_=1604868940265' 
+        url = f'http://reportapi.eastmoney.com/report/predic?cb=datatable{cbi}&dyCode=*&pageNo={pageNo}&pageSize={pageSize}&fields=&beginTime=2019-11-09&endTime=2020-11-10&hyCode=*&gnCode=*&marketCode=*&sort=rateBuy%2Cdesc&p=3&pageNum=3&_=1604868940265' 
+        print(url)
         params = { }
         if debug:
             res = cb+'''({"hits":4121,"size":1,"data":[{"stockName":"长城汽车","stockCode":"601633","total":92,"rateBuy":68,"rateIncrease":24,"rateNeutral":0,"rateReduce":0,"rateSellout":0,"ratekanduo":92,"lastYearEps":"0.4977","lastYearPe":"","lastYearProfit":"4.5667799E9","thisYearEps":"0.6291","thisYearPe":"","thisYearProfit":"5.7713761E9","nextYearEps":"0.765","nextYearPe":"","nextYearProfit":"7.0211103E9","afterYearEps":"","afterYearPe":"","afterYearProfit":"","lastYearActualProfit":"4.496875E9","lastYearActualEps":"0.4901","beforeYearActualProfit":"5.2073139E9","beforeYearActualEps":"0.5675","aimPriceT":"32.6","aimPriceL":"9.0","updateTime":"2020-11-09 05:00:10.000","hyBK":"481","gnBK":["682","707","718","802","900","813","815","815","815","815","816","817","817","817","845","867","879","499","500","567","570","574","596","596","596","596","596","612"],"dyBK":"199003","market":["HU"],"total_1":23,"rateBuy_1":18,"rateIncrease_1":5,"rateNeutral_1":0,"rateReduce_1":0,"rateSellout_1":0,"total_3":58,"rateBuy_3":44,"rateIncrease_3":14,"rateNeutral_3":0,"rateReduce_3":0,"rateSellout_3":0,"total_12":170,"rateBuy_12":122,"rateIncrease_12":48,"rateNeutral_12":0,"rateReduce_12":0,"rateSellout_12":0}],"TotalPage":4121,"pageNo":1,"currentYear":2020})'''
@@ -99,7 +103,7 @@ def getHighLevelStocksRaw():
         stock = json.loads(m.group(1))['data']
         stocks.extend(stock)
         time.sleep(0.2)
-    stocks.sort(key=lambda x: x['rateEps'], reverse=True)
+    stocks.sort(key=lambda x: x['rateBuy'], reverse=True)
     return stocks
 
 # @keyvDb.withCache('good:getIndicatorByCode', expire=86400*10)
@@ -116,14 +120,14 @@ def getIndicatorByCode(code):
     profitDf = profitLib.pullXqProfitCode(code)
     if profitDf is not None:
         profit = profitDf.iloc[0].to_dict()
-    print('metas', metas)
-    print('profit', profit)
+    # print('metas', metas)
+    # print('profit', profit)
     row = {**metas, **profit}
     # level
     # rateEps,level = getYearEps(code)
     # row['rateEps'] = rateEps
     # row['level'] = level
-    print(row)
+    # print(row)
     return row
 
 
@@ -135,11 +139,12 @@ def printGoodLevelStock(stocks,name=""):
 
 def getGoodLevelStocks(rate=0.25):
     stocks = getHighLevelStocks()
-    printGoodLevelStock(stocks)
-    print(stocks[0])
+    # printGoodLevelStock(stocks)
+    # print(stocks[0])
     
-    stocks = filter(lambda x: x['rateEps']>=rate, stocks)
-    stocks = filter(lambda x: x['stockCode']!="000043", stocks)
+    stocks = list(filter(lambda x: x['rateEps']>=rate, stocks))
+    # stocks = filter(lambda x: x['stockCode']!="000043", stocks)
+    print("lengh good stocks:%d" % len(stocks))
     return stocks
 
 if __name__=='__main__':
