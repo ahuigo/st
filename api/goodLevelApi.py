@@ -1,8 +1,8 @@
 import requests
 import 	random
 import json,math
-from db import keyvDb
-from lib import logger
+from db import keyvDb,profitDb,metaDb
+from lib import logger,codelist,profitLib
 from api import xqApi
 from functools import cmp_to_key
 import re
@@ -28,10 +28,10 @@ def getDcApi():
         dcApi.get('http://data.eastmoney.com/report/ylyc.html')
     return dcApi
 
+# Deprecated
 @keyvDb.withCache('goodLevelApi:getYearEps', expire=86400*10)
 def getYearEps(code):
     global thsApi
-    print(f'getYearEps(${code})')
     user_agent= 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.1.2 Safari/605.1.15'
     # 业绩预测
     url =f'http://basic.10jqka.com.cn/{code}/worth.html' 
@@ -43,7 +43,7 @@ def getYearEps(code):
         'v': 'AqO95unN-CCDbLQUIYTLNCU3NOxOmDfacSx7DtUA_4J5FM0aXWjHKoH8C1zm',
     }
     respText = thsApi.get(url, headers=headers, cookies=cookies).text
-    respText = respText.encode('latin-1').decode('gbk')
+    #respText = respText.encode('latin-1').decode('gbk')
     try:
         time.sleep(0.4)
         l = pd.read_html(respText)
@@ -52,17 +52,33 @@ def getYearEps(code):
         nextYear = thisYear+1
         thisYearEps = df[df.年度==thisYear].iloc[0]['均值']
         nextYearEps = df[df.年度==nextYear].iloc[0]['均值']
-        rateBuy = df[df.年度==thisYear].iloc[0]['预测机构数']
-        if rateBuy==0:
+        level = df[df.年度==thisYear].iloc[0]['预测机构数']
+        if level==0:
             print("levelApi.py:54",df)
-        return thisYearEps, nextYearEps,rateBuy
+        if nextYearEps=='' or 'thisYearEps'=='':
+            rateEps = -0.001
+        else:
+            rateEps = float(nextYearEps)/float(thisYearEps) - 1
+            rateEps=round(rateEps,3)
+        return rateEps,level
     except Exception as e:
-        print('getYearEps',url,respText)
+        print('getYearEps:',url,respText)
         raise e
 
+def getHighLevelStocks():
+    stocks = getHighLevelStocksRaw()
+    rows = []
+    for stock in stocks:
+        if stock['nextYearProfit']=='':
+            continue
+        # rateBuy
+        stock['level'] = stock['rateBuy']
+        stock['rateEps'] = float(stock['nextYearProfit'])/float(stock['thisYearProfit']) -1
+        rows.append(stock)
+    return rows
 
 @keyvDb.withCache('goodLevelApi:highLevelStocks', expire=86400*10)
-def getHighLevelStocks():
+def getHighLevelStocksRaw():
     global debug
     dcApi = getDcApi()
     stocks = []
@@ -80,26 +96,50 @@ def getHighLevelStocks():
         m = re.match(r''+cb+r'\((.*)\)$', res)
         if not m:
             continue
-        data = json.loads(m.group(1))['data']
-
-        for x in data:
-            thisYearEps,nextYearEps,rateBuy = getYearEps(x['stockCode'])
-            x['rateBuy'] = rateBuy
-            x['thisYearEps'] = thisYearEps
-            x['nextYearEps'] = nextYearEps
-            if x['nextYearEps']=='' or x['thisYearEps']=='':
-                x['rateEps'] = -0.001
-            else:
-                x['rateEps'] = float(x['nextYearEps'])/float(x['thisYearEps']) - 1
-            x['rateEps']=round(x['rateEps'],3)
-        stocks.extend(data)
+        stock = json.loads(m.group(1))['data']
+        stocks.extend(stock)
         time.sleep(0.2)
     stocks.sort(key=lambda x: x['rateEps'], reverse=True)
     return stocks
 
+# @keyvDb.withCache('good:getIndicatorByCode', expire=86400*10)
+def getIndicatorByCode(code):
+    code = codelist.parseCodes(code)[0]
+    # meta
+    metas = metaDb.getMetaByCode(code, updateLevel=False)
+    if metas is None:
+        raise Exception(f"meta not exists for code={code}")
+        return {}
+
+    # profit
+    profit = {}
+    profitDf = profitLib.pullXqProfitCode(code)
+    if profitDf is not None:
+        profit = profitDf.iloc[0].to_dict()
+    print('metas', metas)
+    print('profit', profit)
+    row = {**metas, **profit}
+    # level
+    # rateEps,level = getYearEps(code)
+    # row['rateEps'] = rateEps
+    # row['level'] = level
+    print(row)
+    return row
+
+
+def printGoodLevelStock(stocks,name=""):
+    for stock in stocks:
+        if stock['stockName'] == name:
+            print(stock)
+            break
+
 def getGoodLevelStocks(rate=0.25):
     stocks = getHighLevelStocks()
-    stocks = filter(lambda x: x['rateEps']>=0.25, stocks)
+    printGoodLevelStock(stocks)
+    print(stocks[0])
+    
+    stocks = filter(lambda x: x['rateEps']>=rate, stocks)
+    stocks = filter(lambda x: x['stockCode']!="000043", stocks)
     return stocks
 
 if __name__=='__main__':
@@ -108,6 +148,6 @@ if __name__=='__main__':
         print(stock)
         ts_code = stock['stockCode']
         ts_code = ts_code+'.SH' if ts_code[0]=='6' else ts_code+'.SZ' 
-        df = xqApi.getProfits(ts_code)
+        df = profitDb.pullXqProfitCode(ts_code)
         print('profit',df)
-        print(f'{stock["stockCode"]}\t'+stock['stockName']+f":{stock['thisYearEps']}~{stock['nextYearEps']}={stock['rateEps']} buy={stock['rateBuy']}")
+        print(f'{stock["stockCode"]}\t'+stock['stockName']+f":{stock['thisYearEps']}~{stock['nextYearEps']}={stock['rateEps']} buy={stock['level']}")

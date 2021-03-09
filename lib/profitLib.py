@@ -42,7 +42,7 @@ def singleton(cls):
     return _singleton
 
 def pullProfitCode(ts_code):
-    pullXqProfitCode(ts_code)
+    return pullXqProfitCode(ts_code)
 
 @keyvDb.withCache("pullXqProfitCode", 86400 * 1)
 def pullXqProfitCode(ts_code, debug=False):
@@ -50,8 +50,9 @@ def pullXqProfitCode(ts_code, debug=False):
     logger.lg(df)
     if isinstance(df, type(None)):
         return
+    if df.empty:
+        return
 
-    df["code"] = ts_code
     df = df[
         "code,end_date,dtprofit,q_dtprofit,dny,tr,try".split(",")
     ]
@@ -76,14 +77,12 @@ def pullXqProfitCode(ts_code, debug=False):
             if ( monotonical_num >= 3):
                 df.loc[index, "buy"] = 0
 
-    if conf.DEBUG:
-        print(df)
-
+    profitCols = set(df.columns) - set(["float_share", "free_share"])
+    df = df[profitCols]
     if debug:
         print(df)
-    profitCols = set(df.columns) - set(["float_share", "free_share"])
     profitDb.addProfitBatch(df[profitCols])
-    # return df
+    return df
 
 if __name__ == "__main__":
     code = '002798.SZ'

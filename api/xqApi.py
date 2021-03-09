@@ -38,16 +38,15 @@ def getXqApi():
         if os.path.exists(cookieFile):
             with open(cookieFile,'rb') as f:
                 xqApi.cookies.update(pickle.load(f))
-        else:
-            xqApi.get('https://xueqiu.com/snowman/S/SZ002185/detail', headers=headers)
-            with open(cookieFile, 'wb') as f:
-                pickle.dump(xqApi.cookies, f)
+        xqApi.get('https://xueqiu.com/snowman/S/SZ002185/detail', headers=headers)
+        with open(cookieFile, 'wb') as f:
+            pickle.dump(xqApi.cookies, f)
 
     return xqApi
 
-@keyvDb.withCache('xq:getProfits', expire=86400*10)
+# @keyvDb.withCache('xq:getProfits', expire=86400*10)
 def getProfits(ts_code):
-    time.sleep(1)
+    time.sleep(2)
     symbol = parseCode(ts_code)
     timestamp = str(int(time.time()*1000))
     url = f'https://stock.xueqiu.com/v5/stock/finance/cn/indicator.json?symbol={symbol}&type=all&is_detail=true&count=10&timestamp={timestamp}'
@@ -75,6 +74,7 @@ def getProfits(ts_code):
     df =  pd.DataFrame(rows)
     df = apiUtil.add_q_value(df, 'dtprofit','dny')
     df = apiUtil.add_q_value(df, 'tr','try')
+    # if df.isna()
     return df
 
 
@@ -87,5 +87,5 @@ def parseCode(ts_code):
 
 if __name__ == '__main__':
     # 帝欧家居(SZ:002798)
-    rtn = getProfits('002798.SZ')
+    rtn = getProfits('002798.SZ') # test
     print(rtn)

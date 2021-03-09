@@ -6,7 +6,7 @@ from dateutil.parser import parse as strptime
 from lib import codelist
 from lib import logger
 from api import sinaApi,goodLevelApi
-from db import profitLib 
+from lib import profitLib 
 import time
 
 TODAY = (date.today()).strftime("%Y%m%d")
@@ -144,29 +144,35 @@ def getGood(codes=[]):
     # 预期good
     rows  = []
     highLevelStocks = goodLevelApi.getGoodLevelStocks()
-    cols = ['code','name','thisYearEps', 'nextYearEps','level']
+    cols = ['code','name','rateEps','thisYearEps', 'nextYearEps','level']
     highLevelStockDf = pd.DataFrame(highLevelStocks).rename(columns={ 
         "stockCode": "code",
         "stockName": 'name',
-        "rateBuy":"level",
+        "level":"level",
     })[cols]
     highLevelStockDf.index = highLevelStockDf['code']
     
     for _, row in highLevelStockDf.iterrows():
-        print(row)
+        # row = row.loc[['code,name,level'.split(',')]]
         code = row["code"]
         code = codelist.parseCodes(code)[0]
+        # meta+profit
+        mainRow = goodLevelApi.getIndicatorByCode(code)
+        row = {**mainRow, **row}
         level = row['level']
-        metas = metaDb.getMetaByCode(code)
-        row = {**row.to_dict(), **metas}
-
+        # 1. level
         if level<20:
             continue
-        if row['rateEps']<0.3:
+
+        if 'dny' not in row:
             continue
 
-        row.update(metaDb.getMetaByCode(code, updateLevel=False))
-        row['level'] = level
+        # 3. profit
+        if row['buy']==0:
+            continue
+        
+        # code,end_date,dtprofit,q_dtprofit,dny,tr,try
+        print(row)
         rows.append(row)
 
     if len(rows) == 0:
@@ -179,20 +185,13 @@ def getGood(codes=[]):
         # row["change"] = 100*float(row['level_price'])/float(row["price"])-100
 
     cols = ['end_date','name', 'code','industry','rateEps','level','price','dny','dtprofit_yoy','q_dtprofit_yoy','peg']
+    cols = ['end_date','name', 'code','industry','rateEps','level','price','dny','peg']
     #df = pd.DataFrame(rows)[cols].sort_values(by=['industry', 'level'], ascending=False)
     # df = pd.DataFrame(rows)[cols].sort_values(by=['rateEps'], ascending=False)
     df = pd.DataFrame(rows)[cols].sort_values(by=['industry', 'rateEps'], ascending=False)
     df = df.groupby('industry').head(10)
     #df = pd.DataFrame(rows)[cols].sort_values(by=['industry', 'peg'], ascending=False)
     print("goodp\n", df)
-
-def filterGoodStock(stock):
-    good = True
-    if stock['rateEps']<0.25:
-        return False
-    if stock['rateEps']<0.25:
-        return False
-    return good
 
 if __name__ == "__main__":
     print(Args)

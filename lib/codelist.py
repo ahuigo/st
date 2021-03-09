@@ -1,6 +1,6 @@
 from db import metaDb
 from db import profitDb
-from db import profitLib
+from lib import profitLib
 from api import xqApi
 from lib import logger
 import re
@@ -159,6 +159,7 @@ ignore_list = parseNames(stockListStr)
 
 min_change = 21
 
+# codeStr = 'code1,code2'
 def parseCodes(codeStr):
     import re
 
@@ -251,7 +252,6 @@ if __name__ == '__main__':
             logger.lg(msg)
         if not (end_date == '20200630'):
             print(f'pull code {code}')
-            # dfProfit = xqApi.getProfits(code)
             df = profitLib.pullXqProfitCode(code, True)
             
     print("bad or min_level:")
