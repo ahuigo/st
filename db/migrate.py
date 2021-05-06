@@ -5,6 +5,7 @@ sql_dict = {
     # "prices1":'drop table keyvdb',
     # "drop": "drop table metas,preprofits,profits,keyvdb",
     # "view":"create view profits_late as select distinct on (code) * from profits order by code,end_date desc;",
+    # alter table profits alter column tr Type decimal(20,2)
     # alter table keyvdb add type varchar(10)
     "drop": "drop table profits",
     "t": """
@@ -66,7 +67,7 @@ sql_dict = {
         code char(9) not null,  -- 季报
         end_date date not null, -- 季报结束日期
         -- 营收
-        tr decimal(14,2) not null default 0, 
+        tr decimal(20,2) not null default 0, 
 
         -- 利润（年累计）
         dtprofit  decimal(14,2) not null default 0, -- 扣非净利debut 

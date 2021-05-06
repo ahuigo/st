@@ -72,7 +72,7 @@ def genlist():
     data = getProApi().query(
         "stock_basic", exchange="", list_status="L", fields="ts_code,name,industry"
     )
-    data = data[data.apply(lambda row: "ST" not in row["name"], axis=1)]
+    #data = data[data.apply(lambda row: "ST" not in row["name"], axis=1)]
     print(data)
     data = data.rename(index=str, columns={"ts_code": "code"}).fillna("")
     debug(data)
@@ -143,7 +143,7 @@ def getGood(codes=[]):
     # rows1 = [dict(row) for row in cursor]
     # 预期good
     rows  = []
-    highLevelStocks = goodLevelApi.getGoodLevelStocks()
+    highLevelStocks = goodLevelApi.getGoodLevelStocks(0.259)
     cols = ['code','name','rateEps','thisYearEps', 'nextYearEps','level']
     if len(highLevelStocks)==0:
         quit('no good stocks 1')

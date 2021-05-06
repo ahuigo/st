@@ -70,13 +70,19 @@ def getHighLevelStocks():
     rows = []
     for stock in stocks:
         # print(stock)
-        if stock['nextYearProfit']=='':
-            continue
+        if stock['thisYearProfit']=='': continue
+        if stock['lastYearActualProfit']=='': continue
         # rateBuy
         stock['level'] = stock['rateBuy']
         # stock['rateEps'] = float(stock['nextYearProfit'])/float(stock['thisYearProfit']) -1
         # stock['rateEps'] = float(stock['nextYearProfit'])/float(stock['lastYearActualProfit']) -1
-        stock['rateEps'] = float(stock['thisYearProfit'])/float(stock['lastYearActualProfit']) -1
+        try:
+            stock['rateEps'] = float(stock['thisYearProfit'])/float(stock['lastYearActualProfit']) -1
+        except Exception as err:
+            print(stock)
+            print(err)
+            raise err
+
         rows.append(stock)
     return rows
 
@@ -153,6 +159,6 @@ if __name__=='__main__':
         print(stock)
         ts_code = stock['stockCode']
         ts_code = ts_code+'.SH' if ts_code[0]=='6' else ts_code+'.SZ' 
-        df = profitDb.pullXqProfitCode(ts_code)
+        df = profitLib.pullXqProfitCode(ts_code)
         print('profit',df)
         print(f'{stock["stockCode"]}\t'+stock['stockName']+f":{stock['thisYearEps']}~{stock['nextYearEps']}={stock['rateEps']} buy={stock['level']}")

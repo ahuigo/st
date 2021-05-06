@@ -11,7 +11,7 @@ mean: #求均值
 	python lib/MeanLine.py $(code)
 migrate: 
 	python db/migrate.py
-init: genlist  pullProfit
+init: genlist  
 genlist: 
 	python db/run.py -cmd genlist
 pullProfit: # cache 1day
@@ -45,3 +45,6 @@ getName:
 profile:
 	python -m cProfile -o out.pstats db/run.py -cmd show -code 三一重工
 	python bench/py-perf.py
+
+sql:
+	psql -U ahui ahuigo
