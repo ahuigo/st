@@ -123,6 +123,8 @@ def showCode():
     logger.lg('showCodes:',codes)
     for ts_code in codes:
         if not Args.nonetwork:
+            mainRow = goodLevelApi.getIndicatorByCode(ts_code)
+            print(mainRow)
             profitLib.pullProfitCode(ts_code)
             # metaDb.getMetaByCode(ts_code, updateLevel=False)
         profitDb.showCode(ts_code)
@@ -131,12 +133,6 @@ def showCode():
 
 def getGood(codes=[]):
     from db.conn import cursor
-    where_codes = ""
-    if len(codes):
-        where_codes = " and code in (%s) " % ",".join(
-            ["'" + code + "'" for code in codes]
-        )
-
     # LATEST_END_DATE = (date.today() - timedelta(days=160)).strftime("%Y%m%d")
     # sql = f"select p.*,metas.name from (select distinct on (code) code,end_date,pe,peg,dny,tr,try,buy from profits where (dny>1.20 and try>1.20 and end_date>='{LATEST_END_DATE}' {where_codes}) order by code,end_date desc) p join metas on metas.code=p.code  order by p.peg desc"
     # cursor.execute(sql)
