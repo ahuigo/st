@@ -3,7 +3,7 @@ from lib import logger
 from db import profitDb, keyvDb
 from db.conn import pro
 from itertools import islice
-
+import time
 
 def iterWindow(seq, n=2):
     it = iter(seq)
@@ -55,7 +55,15 @@ def get_basic_from_day(ts_code, ann_date):
 
 def parse_basic_by_day(df, ann_date):
     # end_date = (date.strptime('%Y%m%d',ann_date)+timedelta(days=30)).strftime('%Y%m%d')
-    df1 = df[df.trade_date >= ann_date]
+
+    try:
+        df1 = df[df.trade_date >= ann_date]
+    except Exception as e:
+        print("b", type(ann_date),ann_date)
+        print(df)
+        quit()
+        raise e
+
     if len(df1):
         return df1.iloc[-1]
     else:
@@ -63,6 +71,7 @@ def parse_basic_by_day(df, ann_date):
 
 @keyvDb.withCache("profitLib", 86400 * 5)
 def pullProfitCode(ts_code):
+    time.sleep(60/80)
     df = pro.fina_indicator(
         ts_code=ts_code,
         start_date="20150901",
@@ -114,6 +123,7 @@ def pullProfitCode(ts_code):
         # ann_date is None
         if not row.ann_date:
             df.loc[index, 'ann_date'] = row.end_date
+            row.ann_date = row.end_date
         # 有些数据index not exists
         if (index+4) not in df.index:
             continue
@@ -154,6 +164,9 @@ def pullProfitCode(ts_code):
             )
             # df.loc[index, "dny"] = min(ny, dny)
             df.loc[index, "dny"] = dny
+
+            if row.code == '601992.SH':
+                print("coderow:",row)
 
             # 计算基础数据pe p-e-g
             basic = parse_basic_by_day(basicDf, row.ann_date)

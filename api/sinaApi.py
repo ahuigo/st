@@ -3,11 +3,16 @@ import json
 from db import keyvDb
 from conf.conf import DEBUG
 from datetime import date
+import pandas as pd
 import random
-import os
+import os,re
 from lib import logger
 
 xqApi = None
+
+def rmb(s:str)->float:
+    s= s.replace('元','')
+    return float(re.sub(r',','',s))
 
 def parse163Code(ts_codes):
     codes = {}
@@ -153,6 +158,67 @@ def parseLevel(jgpg3):
         - jgpg3["reduce_counts"]
     )
     return level
+
+
+def add_q_value(df, profit_indicator, yoy_key):
+    df_len = len(df)
+    print(df)
+    print(profit_indicator)
+    df[profit_indicator] = df[profit_indicator].apply(lambda x: rmb(x))
+    qk = 'q_'+profit_indicator
+    df[qk] = 0
+
+    for i in range(df_len):
+        curr = df.iloc[i]
+        end_date = curr['end_date']
+        j = i+1
+        if j==df_len:
+            if end_date[-4:] == '0331':
+                profit_dedt = curr[profit_indicator]
+            elif end_date[-4:] == '0630':
+                profit_dedt = (curr[profit_indicator]/2)
+            elif end_date[-4:] == '0930':
+                profit_dedt = (curr[profit_indicator]/3)
+            elif end_date[-4:] == '1231':
+                profit_dedt = (curr[profit_indicator]/4)
+            else:
+                quit(f'wrong enddate:{end_date}')
+        else:
+            prev = df.iloc[j]
+            if end_date[-4:] == '0331':
+                profit_dedt = curr[profit_indicator]
+            else:
+                # print(curr, int(curr[profit_indicator]))
+                profit_dedt = curr[profit_indicator]-prev[profit_indicator]
+        df['q_'+profit_indicator].iat[i] = (profit_dedt)
+        # df.iloc[i]['q_profit_dedt'] = int(profit_dedt)
+    df[yoy_key] = float(0)
+    if len(df)>=8:
+        l = df[qk]
+        print(sum(l[0:4])/sum(l[4:8]))
+        df[yoy_key].iat[0] = (sum(l[0:4])/sum(l[4:8]))
+    return df
+
+def tidy_sina_profits(df: pd.DataFrame):
+    df=df.rename(columns={
+        "截止日期":'end_date',
+        "净利润":'netprofit',
+        "主营业务收入":'tr',
+    })
+    df = df[['end_date','netprofit','tr']]
+    df['end_date'] = df['end_date'].apply(lambda x:x.replace('-',''))
+    # df['ann_date'] = df['end_date']
+    df.insert(1, 'ann_date', df['end_date'])
+    df = add_q_value(df, 'netprofit','ny')
+    df = add_q_value(df, 'tr','try')
+
+    # 计算基础数据pe p-e-g
+    ny = df.loc[0, "ny"]
+    # peg = max(1 + 1 / pe, dny) if pe > 0 else 1
+    df["peg"] = float(0)
+    df.loc[0, "peg"] = ny
+    return df
+     
 
 
 # 财报

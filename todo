@@ -12,24 +12,24 @@ done:
     2. 增长率 new peg:(min(ny, dny),1/pe)
     3. 合理的估值线(均线)
 
-todo:日内差价策略strategyDiff
+20200303:日内差价策略strategyDiff
     2. db:high/low/close/
     1. getPrices
     3. createStrategy
     3. execStrategy
     4. draw line
-todo:估值策略
 
 todo:
+    akshare
+
+todo1:
     1.后端框架
     2.level 评级数据
     4. bench line线: 3维vs 2维
 
 记住：
     只在规定的时间交易
-    多余的钱怎么办? 
+    加仓:
         早：9:00 以-2.5% 买入
         晚：2:45 用现价买入
-    需要钱?好办
-    该买时，坚决买, 不计较得失
 
