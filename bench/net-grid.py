@@ -6,13 +6,14 @@ from lib import logger
 from lib import MeanLine
 from lib import strategyBase as strategy
 from lib import codelist
-
+import sys
 from lib.strategyBase import (
     calc_sell,
     calc_buy,
     calc_total,
     debug_stockList,
 )
+sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 99999)
 
 BUY_RATE = 1.001
 SELL_RATE = 0.998
@@ -116,12 +117,14 @@ def main(code='600036.SH', period=30, balance=10e4):
     # 1.get prices
     prices = priceDb.getPricesByCode(code, 1, 365)
     pre_priceInfo = None
-    balance = 100*1e4
-    percent = 0.75
-    holdn = 0
-    init_total = 100*1e4
-    min_diff = 6000
+    balance = 10*1e4
+    holdn = 00*3
+    base_price = 33
+    base_amount = 1e4
+    min_change = 0.04
+    i = 0
     for priceInfo in prices:
+        i+=1
         if pre_priceInfo is None:
             pre_priceInfo = priceInfo
             print(priceInfo)
@@ -129,24 +132,27 @@ def main(code='600036.SH', period=30, balance=10e4):
         price = priceInfo['close']
         holdv = holdn*price
         total = balance + holdv
-        holdv_should = init_total #total * percent
         msg = ''
         # 亏 - buy
-        if holdv_should - holdv > min_diff:
-            cost = holdv_should - holdv
+        if price/base_price-1 < -min_change:
+            cost = base_amount*(1-price/base_price)/min_change
             n = math.floor(cost*.998/price/100)*100
             balance -= n*price*1.002
             holdn += n
             msg = f'buy: {n}*{price}'
-
-        if  holdv -holdv_should  > min_diff:
-            cost = holdv - holdv_should
+            base_price = price
+        # sell
+        elif holdn >100  and price/base_price-1 >min_change:
+            cost = base_amount*(price/base_price-1)/min_change
             n = math.floor(cost*.998/price/100)*100
+            #n = min(n, holdn)
             balance += n*price*.9985
             holdn -= n
+            base_price = price
             msg = f'sell: {n}*{price}'
         total = holdn*price + balance
-        print(f'{priceInfo["trade_date"]}:b={balance}, holdn={holdn}, price={price}, t={total} msg:{msg}')
+        s = f'{priceInfo["trade_date"]}:b={balance}, holdn={holdn}, price={price}, bp={base_price}, t={total} msg:{msg}'
+        print(s)
         pre_priceInfo = priceInfo
 
 
