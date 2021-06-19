@@ -1,6 +1,8 @@
 code?=''
 sql:
 	psql -U role1 ahuigo
+sql2:
+	psql -U ahui ahuigo
 
 benchMeanAsValue:
 	python -u bench/benchMeanAsValue.py
@@ -46,5 +48,3 @@ profile:
 	python -m cProfile -o out.pstats db/run.py -cmd show -code 三一重工
 	python bench/py-perf.py
 
-sql:
-	psql -U ahui ahuigo

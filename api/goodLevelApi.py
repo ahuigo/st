@@ -119,7 +119,6 @@ def getIndicatorByCode(code):
     metas = metaDb.getMetaByCode(code, updateLevel=False)
     if metas is None:
         raise Exception(f"meta not exists for code={code}")
-        return {}
 
     # profit
     profit = {}
@@ -138,16 +137,18 @@ def getIndicatorByCode(code):
 
 
 def printGoodLevelStock(stocks,name=""):
+    name = name.split(".")[0]
     for stock in stocks:
-        if stock['stockName'] == name:
+        if stock['stockName'] == name or stock["stockCode"]==name:
             print(stock)
             break
 
-def getGoodLevelStocks(rate=0.25):
+def getGoodLevelStocks(rate=0.25, code=''):
     stocks = getHighLevelStocks()
-    # printGoodLevelStock(stocks)
+    printGoodLevelStock(stocks, code)
     # print(stocks[0])
     
+    print("filter rateEps>=", rate)
     stocks = list(filter(lambda x: x['rateEps']>=rate, stocks))
     # stocks = filter(lambda x: x['stockCode']!="000043", stocks)
     print("lengh good stocks:%d" % len(stocks))

@@ -1,8 +1,5 @@
 import pandas as pd
-import numpy as np
-import re
 from datetime import datetime, date, timedelta
-from dateutil.parser import parse as strptime
 from lib import codelist
 from lib import logger
 from api import sinaApi,goodLevelApi
@@ -19,7 +16,6 @@ def prev_weekday():
     return adate.strftime("%Y%m%d")
 
 
-import os, sys, json
 import code
 from db import priceDb, metaDb, keyvDb, profitDb
 from db.conn import getProApi
@@ -139,7 +135,7 @@ def getGood(codes=[]):
     # rows1 = [dict(row) for row in cursor]
     # 预期good
     rows  = []
-    highLevelStocks = goodLevelApi.getGoodLevelStocks(0.259)
+    highLevelStocks = goodLevelApi.getGoodLevelStocks(0.259, Args.code)
     cols = ['code','name','rateEps','thisYearEps', 'nextYearEps','level']
     if len(highLevelStocks)==0:
         quit('no good stocks 1')
