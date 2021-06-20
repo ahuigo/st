@@ -21,7 +21,7 @@ pullProfit: # cache 1day
 getGood: # 获取好股
 	@echo "get good！"
 	# get good
-	python db/run.py -raw -cmd getGood
+	python db/run.py -raw -cmd getGood -code ${code}
 pullProfitGood: # cache 1day
 	python db/run.py -cmd pullProfitGood
 

@@ -71,13 +71,15 @@ def getHighLevelStocks():
     for stock in stocks:
         # print(stock)
         if stock['thisYearProfit']=='': continue
-        if stock['lastYearActualProfit']=='': continue
+        # if stock['lastYearActualProfit']=='': continue
+        if stock['lastYearProfit']=='': continue
         # rateBuy
         stock['level'] = stock['rateBuy']
-        # stock['rateEps'] = float(stock['nextYearProfit'])/float(stock['thisYearProfit']) -1
-        # stock['rateEps'] = float(stock['nextYearProfit'])/float(stock['lastYearActualProfit']) -1
         try:
-            stock['rateEps'] = float(stock['thisYearProfit'])/float(stock['lastYearActualProfit']) -1
+            # stock['rateEps'] = float(stock['thisYearProfit'])/float(stock['lastYearActualProfit']) -1
+            # stock['rateEps'] = float(stock['nextYearProfit'])/float(stock['lastYearActualProfit']) -1
+            # stock['rateEps'] = float(stock['nextYearProfit'])/float(stock['thisYearProfit']) -1
+            stock['rateEps'] = float(stock['thisYearProfit'])/float(stock['lastYearProfit']) -1
         except Exception as err:
             print(stock)
             print(err)
@@ -138,9 +140,12 @@ def getIndicatorByCode(code):
 
 def printGoodLevelStock(stocks,name=""):
     name = name.split(".")[0]
+    logger.lg("ahuog:",name)
     for stock in stocks:
         if stock['stockName'] == name or stock["stockCode"]==name:
-            print(stock)
+            import json
+            print(json.dumps(stock))
+            quit()
             break
 
 def getGoodLevelStocks(rate=0.25, code=''):

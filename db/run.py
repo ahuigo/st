@@ -120,14 +120,17 @@ def showCode():
     for ts_code in codes:
         if not Args.nonetwork:
             mainRow = goodLevelApi.getIndicatorByCode(ts_code)
-            print(mainRow)
-            profitLib.pullProfitCode(ts_code)
+            print("profile:\n",mainRow)
             # metaDb.getMetaByCode(ts_code, updateLevel=False)
         profitDb.showCode(ts_code)
         # print('6000',df)
 
 
 def getGood(codes=[]):
+    MIN_LEVEL = 20
+    MIN_DNY= 1.25 # 最近一年的业绩
+    print("dny>",MIN_DNY)
+    print("levle>",MIN_LEVEL)
     from db.conn import cursor
     # LATEST_END_DATE = (date.today() - timedelta(days=160)).strftime("%Y%m%d")
     # sql = f"select p.*,metas.name from (select distinct on (code) code,end_date,pe,peg,dny,tr,try,buy from profits where (dny>1.20 and try>1.20 and end_date>='{LATEST_END_DATE}' {where_codes}) order by code,end_date desc) p join metas on metas.code=p.code  order by p.peg desc"
@@ -152,18 +155,21 @@ def getGood(codes=[]):
     for _, row in highLevelStockDf.iterrows():
         # row = row.loc[['code,name,level'.split(',')]]
         code = row["code"]
+        # 0. filter code
+        if code == '000043':
+            continue
         code = codelist.parseCodes(code)[0]
         # meta+profit
         mainRow = goodLevelApi.getIndicatorByCode(code)
         row = {**mainRow, **row}
         level = row['level']
         # 1. level
-        if level<20:
+        if level<MIN_LEVEL:
             continue
 
         if 'dny' not in row:
             continue
-        if row['dny']<1.25:
+        if row['dny']<MIN_DNY:
             continue
 
         # 3. profit
