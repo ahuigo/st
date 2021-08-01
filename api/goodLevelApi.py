@@ -140,11 +140,12 @@ def getIndicatorByCode(code):
 
 def printGoodLevelStock(stocks,name=""):
     name = name.split(".")[0]
-    logger.lg("ahuog:",name)
     for stock in stocks:
         if stock['stockName'] == name or stock["stockCode"]==name:
             import json
-            print(json.dumps(stock))
+            logger.lg("ahuog:",name)
+            stock['gnBK'] = ",".join(stock['gnBK'])
+            print(json.dumps(stock, ensure_ascii=False, indent=2))
             quit()
             break
 
