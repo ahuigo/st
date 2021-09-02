@@ -72,8 +72,8 @@ def getProfits(ts_code):
         logger.lg(row)
         rows.append(row)
     df =  pd.DataFrame(rows)
-    df = apiUtil.add_q_value(df, 'dtprofit','dny')
-    df = apiUtil.add_q_value(df, 'tr','try')
+    df = apiUtil.add_q_value(df, 'dtprofit','dny') # dny TTM 净利润增长
+    df = apiUtil.add_q_value(df, 'tr','try') # try TTM 营收增长
     # if df.isna()
     return df
 

@@ -167,6 +167,7 @@ def getGood(codes=[]):
         if level<MIN_LEVEL:
             continue
 
+        # 2. dny
         if 'dny' not in row:
             continue
         if row['dny']<MIN_DNY:
@@ -175,7 +176,9 @@ def getGood(codes=[]):
         # 3. profit
         if row['buy']==0:
             continue
-        
+        # 3. try 营业收入增长TTM
+        if row['try']<1.20: 
+            continue
         # code,end_date,dtprofit,q_dtprofit,dny,tr,try
         # print(row)
         rows.append(row)
@@ -190,7 +193,8 @@ def getGood(codes=[]):
         # row["change"] = 100*float(row['level_price'])/float(row["price"])-100
 
     cols = ['end_date','name', 'code','industry','rateEps','level','price','dny','dtprofit_yoy','q_dtprofit_yoy','peg']
-    cols = ['end_date','name', 'code','industry','rateEps','level','price','dny','peg']
+    # 3. try 营业收入增长
+    cols = ['end_date','name', 'code','industry','rateEps','level','price','dny','peg','try']
     #df = pd.DataFrame(rows)[cols].sort_values(by=['industry', 'level'], ascending=False)
     # df = pd.DataFrame(rows)[cols].sort_values(by=['rateEps'], ascending=False)
     df = pd.DataFrame(rows)[cols].sort_values(by=['industry', 'rateEps'], ascending=False)
