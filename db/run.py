@@ -190,6 +190,7 @@ def getGood(codes=[]):
     codePriceMap = sinaApi.getPriceInfoByCodes([row['code'] for row in rows])
     for row in rows:
         row["price"] = codePriceMap[row['code']]['price']
+        row['end_date']=datetime.fromtimestamp(row['end_date']/1000)
         # row["change"] = 100*float(row['level_price'])/float(row["price"])-100
 
     cols = ['end_date','name', 'code','industry','rateEps','level','price','dny','dtprofit_yoy','q_dtprofit_yoy','peg']
