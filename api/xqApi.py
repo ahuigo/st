@@ -69,7 +69,7 @@ def getProfits(ts_code):
             "tr": item['total_revenue'][0],
             "try": item['total_revenue'][1],
         }
-        logger.lg(row)
+        logger.log(row)
         rows.append(row)
     df =  pd.DataFrame(rows)
     df = apiUtil.add_q_value(df, 'dtprofit','dny') # dny TTM 净利润增长

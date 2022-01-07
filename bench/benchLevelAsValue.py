@@ -90,7 +90,7 @@ def setLevelPrice(stockList, price_key='price'):
         # metaInfo = sinaApi.getLevel(code)
         level_price = float(metaInfo['level_price'])
         if not level_price:
-            logger.lg('No level_price',metaInfo,stockInfo)
+            logger.log('No level_price',metaInfo,stockInfo)
             quit('Error here')
             # level_price = 0.9
         stockInfo['level_price'] = level_price
@@ -116,7 +116,7 @@ def getMeanPriceByCode(code, cur_date):
             i = m
     if prices[j]["trade_date"] == cur_date:
         return prices[j]["mean"]
-    logger.lg({"code": code, "date": cur_date})
+    logger.log({"code": code, "date": cur_date})
     quit("hahah")
 
 
@@ -144,7 +144,7 @@ def exec_trade(trade_date, stockList, balance, min_change=1, step=0, max_hold_n=
         else:
             row["lock"] = 1
 
-    # logger.lg('print',stockList)
+    # logger.log('print',stockList)
     # quit()
 
     createStrategy(stockList, balance, max_hold_n, min_change, step=step)

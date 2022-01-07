@@ -78,7 +78,7 @@ def getMeanPriceByCode(code, cur_date):
             i = m
     if prices[j]["trade_date"] == cur_date:
         return prices[j]["mean"]
-    logger.lg({"code": code, "date": cur_date})
+    logger.log({"code": code, "date": cur_date})
     quit("hahah")
 
 
@@ -141,7 +141,7 @@ def get_codes():
         "600519.SH",
     }
     codes = list(set(codes) - rm_codes)
-    logger.lg(
+    logger.log(
         "len(codes)=", len(codes),
     )
     return codes

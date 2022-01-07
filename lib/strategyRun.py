@@ -15,7 +15,7 @@ def setLevelChange(stockListMap, price_key='price'):
         # metaInfo = sinaApi.getLevel(code)
         level_price = float(metaInfo['level_price'])
         if not level_price:
-            logger.lg('No level_price',metaInfo,stockInfo)
+            logger.log('No level_price',metaInfo,stockInfo)
             level_price = 0.9
         stockInfo['close'] = price
         stockInfo['level_price'] = level_price

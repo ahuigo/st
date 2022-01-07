@@ -143,7 +143,7 @@ def printGoodLevelStock(stocks,name=""):
     for stock in stocks:
         if stock['stockName'] == name or stock["stockCode"]==name:
             import json
-            logger.lg("ahuog:",name)
+            logger.log("ahuog:",name)
             stock['gnBK'] = ",".join(stock['gnBK'])
             print(json.dumps(stock, ensure_ascii=False, indent=2))
             quit()

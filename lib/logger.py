@@ -1,5 +1,6 @@
 import logging
 import sys
+from typing import Union
 import os
 if 'NUMEXPR_MAX_THREADS' not in os.environ:
     os.environ['NUMEXPR_MAX_THREADS']='12'
@@ -12,7 +13,24 @@ logging.basicConfig(
     level=logging.INFO,
 )
 
-def lg(*args, hcolor="", color="", call=None, **kw):
+'''''''''''
+level
+'''''''''''
+FATAL = logging.CRITICAL
+ERROR = logging.ERROR
+WARN = logging.WARN
+INFO = logging.INFO
+DEBUG = logging.DEBUG
+NOTSET = logging.NOTSET
+
+slevel = logging.DEBUG
+def setLevel(level=logging.DEBUG):
+    global slevel
+    slevel = level
+
+def log(*args, hcolor="", color="", call=None, level=logging.DEBUG, **kw)->Union[str,None]:
+    if level<slevel:
+        return 
     msg = ""
     if len(args):
         args = list(map(str, args))
@@ -33,7 +51,7 @@ def lg(*args, hcolor="", color="", call=None, **kw):
     print(msg)
     return msg
 
-def colorMsg(msg:str, color:str=""):
+def colorMsg(msg:str, color:str="")->str:
     if color == "red":
         msg = (bcolors.RED + msg + bcolors.ENDC)
     elif color == "warn":
@@ -57,8 +75,7 @@ class bcolors:
     BOLD = "\033[1m"
     UNDERLINE = "\033[4m"
 
-
-# logger.lg = lg.__get__(logger)
+# logger.log = lg.__get__(logger)
 
 # logger.debug= insertBatch.__get__(cursor)
 

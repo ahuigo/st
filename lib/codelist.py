@@ -221,14 +221,14 @@ if __name__ == '__main__':
         if profit['dny']<1.20:#or levelInfo['level']<min_level:
             badMsgs.append(msg)
         else:
-            logger.lg(msg)
+            logger.log(msg)
         if not (end_date == '20200630'):
             print(f'pull code {code}')
             df = profitLib.pullXqProfitCode(code, True)
             
     print("bad or min_level:")
     for msg in badMsgs:
-        logger.lg(msg, hcolor="red")
+        logger.log(msg, hcolor="red")
     print("good:")
     print(goodSets)
 

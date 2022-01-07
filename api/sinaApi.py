@@ -45,7 +45,7 @@ def getPriceInfoByCodes163(ts_codes):
     url = f'http://api.money.126.net/data/feed/{codeListStr},money.api?callback={callback}'
     res = requests.get(url, headers=headers).text
     if not res or callback not in res:
-        logger.lg('Api: get price error,'+codeListStr+'\n')
+        logger.log('Api: get price error,'+codeListStr+'\n')
         quit()
     else:
         res = res.strip().rstrip(');').replace(callback+'(', '');
@@ -77,7 +77,7 @@ def getCurPriceByCodeSina(ts_code="000007.SZ"):
 
     price = float(res.split(",")[3])
     if date.today().strftime("%Y-%m-%d") not in res or not price:
-        logger.lg('wrong price',date.today().strftime("%Y%m%d") , res)
+        logger.log('wrong price',date.today().strftime("%Y%m%d") , res)
         quit()
     return price
 

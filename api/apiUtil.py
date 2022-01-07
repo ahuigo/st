@@ -42,7 +42,7 @@ def add_q_value(df, profit_indicator, yoy_key):
         if not math.isnan(profit_dedt):
             df[qk].iat[i] = (profit_dedt)
         # except Exception as e:
-        #     logger.lg(qk,profit_dedt, df)
+        #     logger.log(qk,profit_dedt, df)
         # df.iloc[i]['q_profit_dedt'] = int(profit_dedt)
     if len(df)>=8:
         l = df[qk]

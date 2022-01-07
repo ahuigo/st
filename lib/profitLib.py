@@ -47,7 +47,7 @@ def pullProfitCode(ts_code):
 @keyvDb.withCache("pullXqProfitCode", 86400 * 3)
 def pullXqProfitCode(ts_code, debug=False):
     df = xqApi.getProfits(ts_code)
-    logger.lg(df)
+    logger.log(df)
     if isinstance(df, type(None)):
         return
     if df.empty:

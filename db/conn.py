@@ -1,8 +1,8 @@
 import psycopg2
+import json
 import psycopg2.extras
 from conf.conf import dbconf
 from datetime import datetime
-import tushare as ts
 #import akshare as ak
 conn = None
 
@@ -14,6 +14,7 @@ pro = None
 def getProApi():
     global pro
     if pro is None:
+        import tushare as ts
         key = open("conf/ts.key").read().strip()
         pro = ts.pro_api(key)
         pro.pro_bar = ts.pro_bar
@@ -50,6 +51,7 @@ def insertBatch(cursor, table, rows, onConflictKeys=None):
             sql += f" ON CONFLICT DO NOTHING"
     # print(sql, values)
     try:
+        values = [[json.dumps(d) if type(d)==dict else d for d in row] for row in values]
         cursor.executemany(sql, values)
     except Exception as e:
         print(cursor.query)
@@ -57,9 +59,8 @@ def insertBatch(cursor, table, rows, onConflictKeys=None):
 
 
 
-
 # onConflictKeys="key1,key2"
-def insertUpdate(cursor, table, row, onConflictKeys=''):
+def insertUpdate(cursor, table, row, onConflictKeys='', returnId=False)->int:
     keys = tuple(row.keys())
     values = tuple(row.values())
 
@@ -77,21 +78,26 @@ def insertUpdate(cursor, table, row, onConflictKeys=''):
             )
         else:
             sql += f" ON CONFLICT DO NOTHING"
+    if returnId:
+        sql += f" RETURNING id"
     # print(sql, values)
     try:
+        values = [json.dumps(d) if type(d)==dict else d for d in values]
         cursor.execute(sql, values)
+        if returnId:
+            return cursor.fetchone()[0]
     except psycopg2.errors.UniqueViolation as e:
         if not onConflictKeys:
             raise e
         print([cursor.query])
-        conflictKeys += uk
+        # conflictKeys += uk
 
         sql = f'update {table} set'
         set_keys = ','.join([f'"{k}"=%s' for k in keys])
         where_keys = ' and '.join([f'"{k}"=%s' for k in conflictKeys])
         values += [row[k] for k in conflictKeys]
         sql = f'{sql} {set_keys} where {where_keys}'
-        cursor.execute(sql, values)
+        cursor.execute(sql, values) 
 
     except Exception as e:
         print([cursor.query])

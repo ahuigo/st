@@ -116,7 +116,7 @@ def syncProfit():
 
 def showCode():
     codes = codelist.parseCodes(Args.code)
-    logger.lg('showCodes:',codes)
+    logger.log('showCodes:',codes)
     for ts_code in codes:
         if not Args.nonetwork:
             mainRow = goodLevelApi.getIndicatorByCode(ts_code)
@@ -239,6 +239,6 @@ if __name__ == "__main__":
         showCode()
     else:
         quit('error cmd:'+Args.cmd)
-    logger.lg("done")
+    logger.log("done")
     quit()
 

@@ -24,7 +24,7 @@ def calc_buy(code, num, close):
     if code[0] == "6":
         # 过户
         cost += math.ceil(num / 1000)
-    # logger.lg(code=code,commission=commission+pass_fee,buy='buy',num=num,close=close)
+    # logger.log(code=code,commission=commission+pass_fee,buy='buy',num=num,close=close)
     return round(cost + commission, 2)
 
 
@@ -45,7 +45,7 @@ def calc_sell(code, num, close):
     if code[0] == "6":
         # 过户
         cost -= math.ceil(num / 1000)
-    # logger.lg(code=code,commission=commission,stamp_tax=stamp_tax)
+    # logger.log(code=code,commission=commission,stamp_tax=stamp_tax)
     return round(cost - commission - stamp_tax, 2)
 
 
@@ -69,14 +69,14 @@ def debug_stockList(stockList):
         
         if s["strategy"] == "sell":
             msg = f"{prefix} {round(price*sell_rate,2)}*{s['sellNum']}({extra}) -> {s['strategy']}({s['i']})"
-            msg = logger.lg(msg, color="ok", call=stripPublish)
+            msg = logger.log(msg, color="ok", call=stripPublish)
         elif s["strategy"] == "buy":
             msg = f"{prefix} {round(price*buy_rate,2)}*{s['buyNum']}({extra}) -> {s['strategy']}({s['i']})"
-            msg = logger.lg(msg, color="red",call=stripPublish)
+            msg = logger.log(msg, color="red",call=stripPublish)
         elif conf.CODE == s["code"] or s.get('level',0)<50:
-            msg = logger.lg(msg, color="warn",call=stripPublish)
+            msg = logger.log(msg, color="warn",call=stripPublish)
         else:
-            msg = logger.lg(msg, call=stripPublish)
+            msg = logger.log(msg, call=stripPublish)
         output += msg+'\n'
     if conf.big:
         quit("too big or small")
@@ -125,13 +125,13 @@ def createStrategy(
             close = buyStockInfo["close"]
             n = avg_stock_money / (100 * close * BUY_RATE)
             # if buyStockInfo["name"]=='新宙邦':
-            #     logger.lg(buyStockInfo,avg_stock_money=avg_stock_money,n=avg_stock_money / (100 * close))
+            #     logger.log(buyStockInfo,avg_stock_money=avg_stock_money,n=avg_stock_money / (100 * close))
             if n < 0.7:
                 buy_i += 1
                 continue
             # 钱不够
             # if buyStockInfo['name']=='万科A':
-            #     logger.lg(buyStockInfo,n=n,close=close,avg_stock_money=avg_stock_money)
+            #     logger.log(buyStockInfo,n=n,close=close,avg_stock_money=avg_stock_money)
             buyNum = round(n) * 100
             if buyNum * close * BUY_RATE > balance:
                 need_sell = True
