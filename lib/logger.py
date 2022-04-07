@@ -13,6 +13,13 @@ logging.basicConfig(
     level=logging.INFO,
 )
 
+# max filename
+max_filename = 100
+def setMaxFilename(l=100):
+    global max_filename
+    max_filename = l
+
+
 '''''''''''
 level
 '''''''''''
@@ -27,6 +34,20 @@ slevel = logging.DEBUG
 def setLevel(level=logging.DEBUG):
     global slevel
     slevel = level
+
+def debug(*args, hcolor="", color="", call=None, **kw)->Union[str,None]:
+    log(*args, hcolor=hcolor, color=color, call=call, level=logging.DEBUG, **kw)
+
+def info(*args, hcolor="", color="", call=None, **kw)->Union[str,None]:
+    log(*args, hcolor=hcolor, color=color, call=call, level=logging.INFO, **kw)
+
+def error(*args, hcolor="", color="", call=None, **kw)->Union[str,None]:
+    color = color or ColorName.RED
+    log(*args, hcolor=hcolor, color=color, call=call, level=logging.ERROR, **kw)
+
+def fatal(*args, hcolor="", color="", call=None, **kw)->Union[str,None]:
+    color = color or ColorName.RED
+    log(*args, hcolor=hcolor, color=color, call=call, level=logging.FATAL, **kw)
 
 def log(*args, hcolor="", color="", call=None, level=logging.DEBUG, **kw)->Union[str,None]:
     if level<slevel:
@@ -43,7 +64,7 @@ def log(*args, hcolor="", color="", call=None, level=logging.DEBUG, **kw)->Union
         msg += str(kw)
     if call:
         msg = call(msg)
-    filename = sys._getframe(1).f_code.co_filename[-15:]
+    filename = sys._getframe(1).f_code.co_filename[-max_filename:]
     fileno = sys._getframe(1).f_lineno
     msg = f"{filename}:{fileno}:{msg}"
     if color:
@@ -63,6 +84,11 @@ def colorMsg(msg:str, color:str="")->str:
     return msg
 
 
+class ColorName:
+    RED = 'red'
+    BLUE = 'blue'
+    OK = 'ok'
+    WARN = 'warn'
 
 class bcolors:
     ENDC = "\033[0m"
