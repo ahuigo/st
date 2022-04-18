@@ -5,47 +5,49 @@ sql2:
 	psql -U ahui ahuigo
 
 benchMeanAsValue:
-	python -u bench/benchMeanAsValue.py
+	python2 -u bench/benchMeanAsValue.py
 benchLevelAsValue:
-	python bench/benchLevelAsValue.py -c 1:200 --hold 36:39 
+	python3 bench/benchLevelAsValue.py -c 1:200 --hold 36:39 
 
 mean: #求均值
-	python lib/MeanLine.py $(code)
+	python3 lib/MeanLine.py $(code)
 migrate: 
-	python db/migrate.py
-init: genlist  
+	python3 db/migrate.py
+initDB:
+	echo 'create database ahuigo; create user role1;'| psql postgres
+init: migrate genlist  
 genlist: 
-	python db/run.py -cmd genlist
+	python3 db/run.py -cmd genlist
 pullProfit: # cache 1day
-	python db/run.py -cmd pullProfit
+	python3 db/run.py -cmd pullProfit
 getGood: # 获取好股
 	@echo "get good！"
 	# get good
 	# make getGood code=长春高新 
-	python db/run.py -raw -cmd getGood -code ${code}
+	python3 db/run.py -raw -cmd getGood -code ${code}
 pullProfitGood: # cache 1day
-	python db/run.py -cmd pullProfitGood
+	python3 db/run.py -cmd pullProfitGood
 
 
 pullPrice:
-	python db/run.py -cmd pullPrice -code ${code}
+	python3 db/run.py -cmd pullPrice -code ${code}
 
 cleanKv:
-	python db/run.py -cmd clearKv
+	python3 db/run.py -cmd clearKv
 cleanPrice:
 	echo 'delete from prices' | psql  -U role1 ahuigo
 
 strategy:
-	python lib/strategyRun.py -cmd level 
+	python3 lib/strategyRun.py -cmd level 
 
 # 查看详情
 show:
-	python db/run.py -cmd show -code $(code)
+	python3 db/run.py -cmd show -code $(code)
 getName:
-	python db/run.py -cmd getName -code $(code)
+	python3 db/run.py -cmd getName -code $(code)
 
 
 profile:
-	python -m cProfile -o out.pstats db/run.py -cmd show -code 三一重工
-	python bench/py-perf.py
+	python3 -m cProfile -o out.pstats db/run.py -cmd show -code 三一重工
+	python3 bench/py-perf.py
 

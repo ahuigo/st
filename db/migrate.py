@@ -7,7 +7,7 @@ sql_dict = {
     # "view":"create view profits_late as select distinct on (code) * from profits order by code,end_date desc;",
     # alter table profits alter column tr Type decimal(20,2)
     # alter table keyvdb add type varchar(10)
-    "drop": "drop table profits",
+    #"drop": "drop table profits",
     "t": """
     create table t(
         code char(9) not null,
