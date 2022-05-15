@@ -1,34 +1,9 @@
-done:
-    pe>50倍股票策略
-    1. peg 修正
-    2. syncGood
-        1. 180天时延均线
-        2. 预测估值
-        3. diff=price/估值 排名
-
-    0. 前复权
-    1. 180天均线（无时延）
-    1. peg
-    2. 增长率 new peg:(min(ny, dny),1/pe)
-    3. 合理的估值线(均线)
-
-20200303:日内差价策略strategyDiff
-    2. db:high/low/close/
-    1. getPrices
-    3. createStrategy
-    3. execStrategy
-    4. draw line
-
-todo:
-1. 股票池: 使用机构研报买入排行榜前9*50个
-2. 使用盈利预测增长率2021/2020 排序，不要使用peg:
-    http://data.eastmoney.com/report/ylyc.html    
-    https://data.eastmoney.com/report/profitforecast.jshtml
-
-
-记住：
-    只在规定的时间交易
-    加仓:
-        早：9:00 以-2.5% 买入
-        晚：2:45 用现价买入
-
+# 创成长
+趋势买卖：
+    只在规定的时间交易,每周末
+    -: 20周均线走平或向下,特别是较高
+    +: 20周均线向上 
+波动买卖: 最好同行业同板块
+    差价+2%：前5换后5
+    风险：单边上涨、单边下跌，对冲用趋势
+    日内操作 vs 周操作 量化比较 0.15%
