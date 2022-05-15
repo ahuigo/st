@@ -38,6 +38,10 @@ def setLevel(level=logging.DEBUG):
 def debug(*args, hcolor="", color="", call=None, **kw)->Union[str,None]:
     log(*args, hcolor=hcolor, color=color, call=call, level=logging.DEBUG, **kw)
 
+def warn(*args, hcolor="", color="", call=None, **kw)->Union[str,None]:
+    color = color or ColorName.WARN
+    log(*args, hcolor=hcolor, color=color, call=call, level=logging.INFO, **kw)
+
 def info(*args, hcolor="", color="", call=None, **kw)->Union[str,None]:
     log(*args, hcolor=hcolor, color=color, call=call, level=logging.INFO, **kw)
 
@@ -64,8 +68,8 @@ def log(*args, hcolor="", color="", call=None, level=logging.DEBUG, **kw)->Union
         msg += str(kw)
     if call:
         msg = call(msg)
-    filename = sys._getframe(1).f_code.co_filename[-max_filename:]
-    fileno = sys._getframe(1).f_lineno
+    filename = sys._getframe(2).f_code.co_filename[-max_filename:]
+    fileno = sys._getframe(2).f_lineno
     msg = f"{filename}:{fileno}:{msg}"
     if color:
         msg = colorMsg(msg, color)

@@ -6,3 +6,4 @@ python-dateutil
 pytz
 six
 psycopg2
+matplotlib
