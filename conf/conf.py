@@ -1,4 +1,12 @@
-import os
+import os,sys
+from pathlib import Path
+print('Running' if __name__ == '__main__' else 'Importing', Path(__file__).resolve())
+
+
+#if __name__ == "__main__":
+if '.' not in sys.path:
+    sys.path.append(".")
+
 
 # pg数据库
 dbconf = {"database": "ahuigo", "user": "role1", "password": "", "host": "127.0.0.1"}

@@ -8,6 +8,7 @@ from functools import cmp_to_key
 import re
 import time
 import pandas as pd
+from datetime import datetime
 
 dcApi = None
 thsApi = requests.Session()
@@ -70,16 +71,13 @@ def getHighLevelStocks():
     rows = []
     for stock in stocks:
         # print(stock)
-        if stock['thisYearProfit']=='': continue
-        # if stock['lastYearActualProfit']=='': continue
-        if stock['lastYearProfit']=='': continue
         # rateBuy
         stock['level'] = stock['rateBuy']
         try:
             # stock['rateEps'] = float(stock['thisYearProfit'])/float(stock['lastYearActualProfit']) -1
             # stock['rateEps'] = float(stock['nextYearProfit'])/float(stock['lastYearActualProfit']) -1
             # stock['rateEps'] = float(stock['nextYearProfit'])/float(stock['thisYearProfit']) -1
-            stock['rateEps'] = float(stock['thisYearProfit'])/float(stock['lastYearProfit']) -1
+            stock['rateEps'] = float(stock['EPS4'])/float(stock['EPS1']) -1
         except Exception as err:
             print(stock)
             print(err)
@@ -95,20 +93,32 @@ def getHighLevelStocksRaw():
     stocks = []
     cbi = random.randint(1100575,8100575)
     cb = f'datatable{cbi}'
-    for pageNo in range(1,8):
+    for pageNo in range(1,2):
         print('pageNo:',pageNo)
-        pageSize=100
-        url = f'http://reportapi.eastmoney.com/report/predic?cb=datatable{cbi}&dyCode=*&pageNo={pageNo}&pageSize={pageSize}&fields=&beginTime=2019-11-09&endTime=2020-11-10&hyCode=*&gnCode=*&marketCode=*&sort=rateBuy%2Cdesc&p=3&pageNum=3&_=1604868940265' 
+        # api1
+        # https://reportapi.eastmoney.com/report/predic?cb=datatable8078283&dyCode=*&pageNo=1&pageSize=100&fields=&hyCode=*&gnCode=*&marketCode=*&sort=rateBuy%2Cdesc&p=3&pageNum=3&_=1604868940265
+        # beginTime='2019-11-09'
+        # endTime='2020-11-10'
+        # url = f'http://reportapi.eastmoney.com/report/predic?cb=datatable{cbi}&dyCode=*&pageNo={pageNo}&pageSize={pageSize}&fields=&beginTime={beginTime}&endTime={endTime}&hyCode=*&gnCode=*&marketCode=*&sort=rateBuy%2Cdesc&p=1&pageNum=1&_={timestamp}' 
+        # api2:
+        # https://data.eastmoney.com/report/profitforecast.jshtml 股票盈利预测
+        timestamp=datetime.now().timestamp()
+        url = f'https://datacenter-web.eastmoney.com/api/data/v1/get?callback={cb}&reportName=RPT_WEB_RESPREDICT&columns=WEB_RESPREDICT&pageNumber={pageNo}&pageSize=50&sortTypes=-1&sortColumns=RATING_ORG_NUM&p=1&pageNo=1&pageNum=1&_={timestamp}'
         print(url)
         params = { }
         if debug:
-            res = cb+'''({"hits":4121,"size":1,"data":[{"stockName":"长城汽车","stockCode":"601633","total":92,"rateBuy":68,"rateIncrease":24,"rateNeutral":0,"rateReduce":0,"rateSellout":0,"ratekanduo":92,"lastYearEps":"0.4977","lastYearPe":"","lastYearProfit":"4.5667799E9","thisYearEps":"0.6291","thisYearPe":"","thisYearProfit":"5.7713761E9","nextYearEps":"0.765","nextYearPe":"","nextYearProfit":"7.0211103E9","afterYearEps":"","afterYearPe":"","afterYearProfit":"","lastYearActualProfit":"4.496875E9","lastYearActualEps":"0.4901","beforeYearActualProfit":"5.2073139E9","beforeYearActualEps":"0.5675","aimPriceT":"32.6","aimPriceL":"9.0","updateTime":"2020-11-09 05:00:10.000","hyBK":"481","gnBK":["682","707","718","802","900","813","815","815","815","815","816","817","817","817","845","867","879","499","500","567","570","574","596","596","596","596","596","612"],"dyBK":"199003","market":["HU"],"total_1":23,"rateBuy_1":18,"rateIncrease_1":5,"rateNeutral_1":0,"rateReduce_1":0,"rateSellout_1":0,"total_3":58,"rateBuy_3":44,"rateIncrease_3":14,"rateNeutral_3":0,"rateReduce_3":0,"rateSellout_3":0,"total_12":170,"rateBuy_12":122,"rateIncrease_12":48,"rateNeutral_12":0,"rateReduce_12":0,"rateSellout_12":0}],"TotalPage":4121,"pageNo":1,"currentYear":2020})'''
+            res = cb+'''({"data":[{"stockName":"长城汽车","stockCode":"601633","total":92,"rateBuy":68,"rateIncrease":24,"rateNeutral":0,"rateReduce":0,"rateSellout":0,"ratekanduo":92,"lastYearEps":"0.4977","lastYearPe":"","lastYearProfit":"4.5667799E9","thisYearEps":"0.6291","thisYearPe":"","thisYearProfit":"5.7713761E9","nextYearEps":"0.765","nextYearPe":"","nextYearProfit":"7.0211103E9","afterYearEps":"","afterYearPe":"","afterYearProfit":"","lastYearActualProfit":"4.496875E9","lastYearActualEps":"0.4901","beforeYearActualProfit":"5.2073139E9","beforeYearActualEps":"0.5675","aimPriceT":"32.6","aimPriceL":"9.0","updateTime":"2020-11-09 05:00:10.000","hyBK":"481","gnBK":["682","707","718","802","900","813","815","815","815","815","816","817","817","817","845","867","879","499","500","567","570","574","596","596","596","596","596","612"],"dyBK":"199003","market":["HU"],"total_1":23,"rateBuy_1":18,"rateIncrease_1":5,"rateNeutral_1":0,"rateReduce_1":0,"rateSellout_1":0,"total_3":58,"rateBuy_3":44,"rateIncrease_3":14,"rateNeutral_3":0,"rateReduce_3":0,"rateSellout_3":0,"total_12":170,"rateBuy_12":122,"rateIncrease_12":48,"rateNeutral_12":0,"rateReduce_12":0,"rateSellout_12":0}],"TotalPage":4121,"pageNo":1,"currentYear":2020})'''
+            res = cb+'''({"result":{"data":[{"SECUCODE":"603605.SH","SECURITY_NAME_ABBR":"珀莱雅","RATING_ORG_NUM":48,"RATING_BUY_NUM":32,"RATING_ADD_NUM":16,"YEAR1":2021,"YEAR_MARK1":"A","EPS1":2.047229788948,"YEAR2":2022,"YEAR_MARK2":"E","EPS2":3.6661875,"YEAR3":2023,"YEAR_MARK3":"E","EPS3":4.6233125,"YEAR4":2024,"YEAR_MARK4":"E","EPS4":5.769088888889,"INDUSTRY_BOARD":"美容护理","INDUSTRY_BOARD_SZM":"M","MARKET_BOARD":"069001001001","DEC_AIMPRICEMAX":235.01,"DEC_AIMPRICEMIN":194.5,"RATING_LONG_NUM":48}]}}'''
         else:
-            res = dcApi.get(url, params=params).text
-        m = re.match(r''+cb+r'\((.*)\)$', res)
+            res = dcApi.get(url, params=params, headers=headers).text
+        m = re.match(r''+cb+r'\((.*)\);$', res)
         if not m:
             continue
-        stock = json.loads(m.group(1))['data']
+        stock = json.loads(m.group(1))['result']['data']
+        for st in stock:
+            st['stockName'] = st['SECURITY_NAME_ABBR']
+            st['stockCode'] = st['SECUCODE'].split('.')[0]
+            st['rateBuy'] = st['RATING_BUY_NUM']
         stocks.extend(stock)
         time.sleep(0.2)
     stocks.sort(key=lambda x: x['rateBuy'], reverse=True)
@@ -138,21 +148,21 @@ def getIndicatorByCode(code):
     return row
 
 
-def printGoodLevelStock(stocks,name=""):
+def filterGoodLevelStock(stocks,name=""):
     name = name.split(".")[0]
     for stock in stocks:
         if stock['stockName'] == name or stock["stockCode"]==name:
             import json
-            logger.log("ahuog:",name)
-            stock['gnBK'] = ",".join(stock['gnBK'])
+            logger.log("filter:",name)
             print(json.dumps(stock, ensure_ascii=False, indent=2))
-            quit()
-            break
+            return [stock]
+    return []
 
 def getGoodLevelStocks(rate=0.25, code=''):
     stocks = getHighLevelStocks()
-    printGoodLevelStock(stocks, code)
-    # print(stocks[0])
+    if code:
+        stocks = filterGoodLevelStock(stocks, code)
+        return stocks
     
     print("filter rateEps>=", rate)
     stocks = list(filter(lambda x: x['rateEps']>=rate, stocks))

@@ -1,10 +1,12 @@
 import pandas as pd
+import time,sys
+sys.path.append('.')
 from datetime import datetime, date, timedelta
+from conf import conf
 from lib import codelist
 from lib import logger
 from api import sinaApi,goodLevelApi
 from lib import profitLib 
-import time
 
 TODAY = (date.today()).strftime("%Y%m%d")
 
@@ -128,7 +130,7 @@ def showCode():
 
 def getGood(codes=[]):
     MIN_LEVEL = 20
-    MIN_DNY= 1.25 # 最近一年的业绩
+    MIN_DNY= 1.06 # 最近一年的业绩
     print("dny>",MIN_DNY)
     print("levle>",MIN_LEVEL)
     from db.conn import cursor
@@ -138,8 +140,8 @@ def getGood(codes=[]):
     # rows1 = [dict(row) for row in cursor]
     # 预期good
     rows  = []
-    highLevelStocks = goodLevelApi.getGoodLevelStocks(0.259, Args.code)
-    cols = ['code','name','rateEps','thisYearEps', 'nextYearEps','level']
+    highLevelStocks = goodLevelApi.getGoodLevelStocks(0.20, Args.code)
+    cols = ['code','name','rateEps','EPS1', 'EPS4','level']
     if len(highLevelStocks)==0:
         quit('no good stocks 1')
     highLevelStockDf = pd.DataFrame(highLevelStocks)
@@ -177,8 +179,7 @@ def getGood(codes=[]):
         if row['buy']==0:
             continue
         # 3. try 营业收入增长TTM
-        if row['try']<1.20: 
-            continue
+        # if row['try']<1.20: continue
         # code,end_date,dtprofit,q_dtprofit,dny,tr,try
         # print(row)
         rows.append(row)

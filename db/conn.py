@@ -1,7 +1,10 @@
+import os, sys; 
 import psycopg2
 import json
 import psycopg2.extras
 from conf.conf import dbconf
+#from ..conf import *
+#from ..conf import dbconf
 from datetime import datetime
 #import akshare as ak
 conn = None

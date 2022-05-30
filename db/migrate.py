@@ -1,4 +1,7 @@
+import sys
+sys.path.append('.')
 from db.conn import cursor, conn
+
 
 sql_dict = {
     # "prices1":'drop table prices,keyvdb,profits',

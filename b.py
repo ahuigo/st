@@ -110,7 +110,7 @@ class Strategy(bt.Strategy):
 
     def notify_timer(self, timer, when, *args, **kwargs):
         self.i+=1
-        if self.i==1:
+        if self.i<=1:
             return
         # 只在5，9，11月的1号执行再平衡
         # if self.data0.datetime.date(0).month in [5,9,11]:
@@ -153,6 +153,7 @@ class Strategy(bt.Strategy):
     def rebalance_portfolio(self):
         # 从指数取得当前日期
         self.currDate = self.data0.datetime.date(0)
+        print()
         print('rebalance_portfolio currDate', self.currDate, len(self.stocks))
 
         # 如果是指数的最后一本bar，则退出，防止取下一日开盘价越界错
@@ -168,9 +169,8 @@ class Strategy(bt.Strategy):
         
         k=0
         for d in self.stocks:
-            print(self.currDate,d._idx, d._name, d.close[-1], d.tick_close)
+            print(d._idx, d._name, d.close[-1], d.tick_close)
             # print('sma', d._name, self.sma[d][0],self.sma[d][1], d.marketdays[0])
-        print()
         
         # 最终标的选取过程
         # 1 先做排除筛选过程

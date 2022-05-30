@@ -68,8 +68,8 @@ def log(*args, hcolor="", color="", call=None, level=logging.DEBUG, **kw)->Union
         msg += str(kw)
     if call:
         msg = call(msg)
-    filename = sys._getframe(2).f_code.co_filename[-max_filename:]
-    fileno = sys._getframe(2).f_lineno
+    filename = sys._getframe(1).f_code.co_filename[-max_filename:]
+    fileno = sys._getframe(1).f_lineno
     msg = f"{filename}:{fileno}:{msg}"
     if color:
         msg = colorMsg(msg, color)
