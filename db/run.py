@@ -55,7 +55,7 @@ from functools import wraps
 if Args.raw:
     pd.set_option("display.max_columns", None)  # or 1000
     pd.set_option("display.max_rows", None)  # or 1000
-    pd.set_option("display.max_colwidth", -1)  # or 199
+    pd.set_option("display.max_colwidth", None)  # or 199
     pd.options.display.width = None
 
 # if Args.interact: interact(local=locals())
@@ -130,7 +130,7 @@ def showCode():
 
 def getGood(codes=[]):
     MIN_LEVEL = 20
-    MIN_DNY= 1.06 # 最近一年的业绩
+    MIN_DNY= 1.055 # 最近一年的业绩
     print("dny>",MIN_DNY)
     print("levle>",MIN_LEVEL)
     from db.conn import cursor
@@ -141,7 +141,7 @@ def getGood(codes=[]):
     # 预期good
     rows  = []
     highLevelStocks = goodLevelApi.getGoodLevelStocks(0.20, Args.code)
-    cols = ['code','name','rateEps','EPS1', 'EPS4','level']
+    cols = ['code','name','rateEps','rateEps4','EPS1', 'EPS2','level']
     if len(highLevelStocks)==0:
         quit('no good stocks 1')
     highLevelStockDf = pd.DataFrame(highLevelStocks)
@@ -170,13 +170,18 @@ def getGood(codes=[]):
             continue
 
         # 2. dny
-        if 'dny' not in row:
-            continue
+        # if 'dny' not in row: continue
         if row['dny']<MIN_DNY:
+            print("skip dny:%s name:%s %s" % (row['dny'], code,row['name']))
             continue
 
         # 3. profit
         if row['buy']==0:
+            print("skip buy name:%s %s" % (code, row['name']))
+            continue
+        # 3. profit
+        if row['rateEps4']<0.85:
+            print("skip rateEps4:%f name:%s %s" % (row['rateEps4'],code, row['name']))
             continue
         # 3. try 营业收入增长TTM
         # if row['try']<1.20: continue
@@ -196,11 +201,11 @@ def getGood(codes=[]):
 
     cols = ['end_date','name', 'code','industry','rateEps','level','price','dny','dtprofit_yoy','q_dtprofit_yoy','peg']
     # 3. try 营业收入增长
-    cols = ['end_date','name', 'code','industry','rateEps','level','price','dny','peg','try']
+    cols = ['end_date','name', 'code','industry','rateEps','rateEps4','price','dny','peg','try']
     #df = pd.DataFrame(rows)[cols].sort_values(by=['industry', 'level'], ascending=False)
     # df = pd.DataFrame(rows)[cols].sort_values(by=['rateEps'], ascending=False)
     df = pd.DataFrame(rows)[cols].sort_values(by=['industry', 'rateEps'], ascending=False)
-    df = df.groupby('industry').head(10)
+    df = df.groupby('industry').head(2)
     #df = pd.DataFrame(rows)[cols].sort_values(by=['industry', 'peg'], ascending=False)
     print("goodp\n", df)
 

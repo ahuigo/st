@@ -74,10 +74,8 @@ def getHighLevelStocks():
         # rateBuy
         stock['level'] = stock['rateBuy']
         try:
-            # stock['rateEps'] = float(stock['thisYearProfit'])/float(stock['lastYearActualProfit']) -1
-            # stock['rateEps'] = float(stock['nextYearProfit'])/float(stock['lastYearActualProfit']) -1
-            # stock['rateEps'] = float(stock['nextYearProfit'])/float(stock['thisYearProfit']) -1
-            stock['rateEps'] = float(stock['EPS4'])/float(stock['EPS1']) -1
+            stock['rateEps'] = float(stock['EPS2'])/float(stock['EPS1']) -1
+            stock['rateEps4'] = float(stock['EPS4'])/float(stock['EPS1']) -1
         except Exception as err:
             print(stock)
             print(err)
@@ -137,14 +135,7 @@ def getIndicatorByCode(code):
     profitDf = profitLib.pullXqProfitCode(code)
     if profitDf is not None:
         profit = profitDf.iloc[0].to_dict()
-    # print('metas', metas)
-    # print('profit', profit)
     row = {**metas, **profit}
-    # level
-    # rateEps,level = getYearEps(code)
-    # row['rateEps'] = rateEps
-    # row['level'] = level
-    # print(row)
     return row
 
 

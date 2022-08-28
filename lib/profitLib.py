@@ -1,3 +1,4 @@
+from functools import wraps
 from conf import conf
 from lib import logger
 from api import xqApi
