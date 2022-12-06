@@ -76,8 +76,8 @@ def getCurPriceByCodeSina(ts_code="000007.SZ"):
         quit(f"{symbol} price not found")
 
     price = float(res.split(",")[3])
-    if date.today().strftime("%Y-%m-%d") not in res or not price:
-        logger.log('wrong price',date.today().strftime("%Y%m%d") , res)
+    if not price>0:
+        logger.log('wrong price',res)
         quit()
     return price
 

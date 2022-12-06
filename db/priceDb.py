@@ -1,3 +1,4 @@
+from typing import List
 from db.conn import cursor
 from datetime import datetime, date, timedelta
 import pandas as pd
@@ -37,12 +38,7 @@ def getLatestPriceRow(code):
 
 
 def getLatestPrice(code):
-    cursor.execute(
-        "select close from prices where code=%s order by trade_date desc limit 1",
-        [code],
-    )
-    # 就是单个值
-    return cursor.fetchone()[0]
+    return getLatestPriceRow(code)[0]
 
 
 def getPricesByCode(code, page=1, size=1000):
@@ -94,10 +90,10 @@ def pullPrice(code, start_date=""):
 
 
 # 最新价
-def getPullPricesByCode(code):
+def getPullPricesByCode(code, page=1, size=(180 * 5 / 7) // 1):
     if not DEBUG:
         pullPrice(code)
-    prices = getPricesByCode(code, page=1, size=(180 * 5 / 7) // 1)
+    prices = getPricesByCode(code, page, size)
     if prices:
         price = sinaApi.getCurPriceByCode(code)
         prices.append(
@@ -107,10 +103,10 @@ def getPullPricesByCode(code):
     return prices
 
 
-def getPullPricesByCodeList(codes):
+def getPullPricesByCodeList(codes:List[str], page=1, size=(180 * 5 / 7)):
     res = {}
     for code in codes:
-        res[code] = getPullPricesByCode(code)
+        res[code] = getPullPricesByCode(code, page, size)
     return res
 
 # def getCurPriceByCode(code):
